@@ -5,7 +5,7 @@
     "plugin:@typescript-eslint/recommended-requiring-type-checking",
     "plugin:prettier/recommended"
   ],
-  "plugins": ["@typescript-eslint"],
+  "plugins": ["@typescript-eslint", "import"],
   "env": {
     "node": true,
     "es6": true,
@@ -18,13 +18,17 @@
   },
   "parser": "@typescript-eslint/parser",
   "settings": {
+    "import/parsers": {
+      "@typescript-eslint/parser": [".ts", ".tsx"]
+    },
     "import/resolver": {
       "node": {
         "extensions": [".js", ".ts", ".json"]
       },
       "typescript": {
         "config": "tsconfig.json",
-        "alwaysTryTypes": true
+        "alwaysTryTypes": true,
+        "project": ["./tsconfig.json"]
       }
     }
   },
