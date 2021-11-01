@@ -39,5 +39,8 @@ jobs:
       - uses: pnpm/action-setup@v2.0.1
         with:
           version: 6
+          run_install: |
+            - recursive: true
+              args: [--frozen-lockfile, --prefer-offline]
       - name: Run lint
         run: pnpm eslint
