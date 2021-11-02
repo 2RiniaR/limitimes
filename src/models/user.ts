@@ -5,6 +5,8 @@ export interface UsersRepository {
   pull(user: User): void;
 }
 
+export class FollowingSelfError extends Error {}
+
 export class User {
   private readonly _discordId?: string;
   private _followingUsers?: User[];
@@ -22,10 +24,11 @@ export class User {
     repository.pull(this);
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public followUser(target: User) {
-    // ToDo: ユーザーをフォローする
-    // 自分をフォロー出来ないようにフィルタリングする必要がある
+    if (!this.discordId || !target.discordId) throw Error("require properties are undefined.");
+    if (this.discordId === target.discordId) throw new FollowingSelfError();
+    this.followingUsers?.push(target);
+    target._followingUsers?.push(this);
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
