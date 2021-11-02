@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
     "experimentalDecorators": true,
-    "module": "commonjs",
-    "target": "es2021",
+    "module": "ES6",
+    "target": "ES5",
     "sourceMap": true,
     "strict": true,
     "forceConsistentCasingInFileNames": true,
