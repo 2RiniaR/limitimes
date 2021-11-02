@@ -5,10 +5,12 @@ export interface UsersRepository {
   pull(user: User): void;
 }
 
+export class FollowingSelfError extends Error {}
+export class UnfollowTargetNotFoundError extends Error {}
+
 export class User {
   private readonly _discordId?: string;
   private _followingUsers?: User[];
-  private _followerUsers?: User[];
 
   constructor(discordId: string) {
     this._discordId = discordId;
@@ -22,16 +24,27 @@ export class User {
     repository.pull(this);
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public followUser(target: User) {
-    // ToDo: ユーザーをフォローする
-    // 自分をフォロー出来ないようにフィルタリングする必要がある
+    if (!this.discordId || !target.discordId || !this._followingUsers) {
+      throw Error("require properties are undefined.");
+    }
+
+    if (this.discordId === target.discordId) {
+      throw new FollowingSelfError();
+    }
+    this._followingUsers.push(target);
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public unfollowUser(target: User) {
-    // ToDo: ユーザーをフォロー解除する
-    // フィルタリングとかその他もろもろ
+    if (!this.discordId || !target.discordId || !this._followingUsers) {
+      throw Error("require properties are undefined.");
+    }
+
+    const beforeLength = this._followingUsers.length;
+    this._followingUsers = this._followingUsers?.filter((user) => user.discordId !== target.discordId);
+    if (beforeLength === this._followingUsers?.length) {
+      throw new UnfollowTargetNotFoundError();
+    }
   }
 
   get discordId(): string | undefined {
@@ -40,9 +53,5 @@ export class User {
 
   get followingUsers(): User[] | undefined {
     return this._followingUsers;
-  }
-
-  get followerUsers(): User[] | undefined {
-    return this._followerUsers;
   }
 }
