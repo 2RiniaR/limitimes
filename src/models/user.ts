@@ -11,7 +11,6 @@ export class UnfollowTargetNotFoundError extends Error {}
 export class User {
   private readonly _discordId?: string;
   private _followingUsers?: User[];
-  private _followerUsers?: User[];
 
   constructor(discordId: string) {
     this._discordId = discordId;
@@ -34,7 +33,6 @@ export class User {
       throw new FollowingSelfError();
     }
     this._followingUsers.push(target);
-    target._followerUsers?.push(this);
   }
 
   public unfollowUser(target: User) {
@@ -47,7 +45,6 @@ export class User {
     if (beforeLength === this._followingUsers?.length) {
       throw new UnfollowTargetNotFoundError();
     }
-    target._followerUsers = target._followerUsers?.filter((user) => user.discordId !== target.discordId);
   }
 
   get discordId(): string | undefined {
@@ -56,9 +53,5 @@ export class User {
 
   get followingUsers(): User[] | undefined {
     return this._followingUsers;
-  }
-
-  get followerUsers(): User[] | undefined {
-    return this._followerUsers;
   }
 }
