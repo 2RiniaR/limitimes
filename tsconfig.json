@@ -2,7 +2,7 @@
   "compilerOptions": {
     "experimentalDecorators": true,
     "module": "ES6",
-    "target": "ES5",
+    "target": "ES6",
     "sourceMap": true,
     "strict": true,
     "forceConsistentCasingInFileNames": true,

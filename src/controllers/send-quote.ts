@@ -13,18 +13,18 @@ export type SendQuoteContext = {
 };
 
 type MessageReference = {
-  guildId: string;
   channelId: string;
   messageId: string;
 };
 
 // 文字列から、メッセージリンク部分をすべて探し出して、それらの情報を返す
 function findMessageReferencesFromText(text: string): MessageReference[] {
-  // ToDo: 複数リンクに対応する
-  const regex = /https:\/\/discord.com\/channels\/\d+\/(\d+)\/(\d+)/;
-  const match = text.match(regex);
-  if (!match) return [];
-  return [{ guildId: match[0], channelId: match[1], messageId: match[2] }];
+  const regex = /https:\/\/discord.com\/channels\/\d+\/(\d+)\/(\d+)/g;
+  const matches = [...text.matchAll(regex)];
+  return matches.map((match) => {
+    const safeMatch = match as string[]; // I AM JUSTICE.
+    return { channelId: safeMatch[1], messageId: safeMatch[2] };
+  });
 }
 
 // メッセージの参照情報から、参照先メッセージの実体を取得する
