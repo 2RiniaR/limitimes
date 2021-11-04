@@ -58,5 +58,6 @@ async function getSendEmbeds(refs: MessageReference[]): Promise<MessageEmbed[]> 
 export async function sendQuote({ message }: SendQuoteContext) {
   const refs = findMessageReferencesFromText(message.content);
   const embeds = await getSendEmbeds(refs);
+  if (embeds.length === 0) return;
   await message.reply({ embeds });
 }
