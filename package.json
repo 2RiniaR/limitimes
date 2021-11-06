@@ -4,8 +4,9 @@
   "private": "true",
   "scripts": {
     "build": "webpack",
-    "start": "node ./dist/main.js",
+    "start": "node ./dist/server.js",
     "dev": "pnpm build && pnpm start",
+    "setup": "pnpm build && node ./dist/setup.js",
     "eslint": "eslint --ignore-path .gitignore \"src/**/*.{js,ts}\"",
     "eslint:fix": "eslint --ignore-path .gitignore \"src/**/*.{js,ts}\" --fix",
     "format": "prettier --write \"./**/*.ts\""
@@ -28,7 +29,10 @@
     "webpack-node-externals": "^3.0.0"
   },
   "dependencies": {
+    "@discordjs/builders": "^0.8.2",
+    "@discordjs/rest": "^0.1.0-canary.0",
     "dayjs": "^1.10.7",
+    "discord-api-types": "^0.24.0",
     "discord.js": "^13.2.0",
     "dotenv": "^10.0.0"
   }

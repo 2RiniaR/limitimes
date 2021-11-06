@@ -1,4 +1,4 @@
-import { repository } from "src/repositories/in-memory-store";
+import { repository } from "src/server/repositories/in-memory-store";
 
 export interface UsersRepository {
   push(user: User): void;

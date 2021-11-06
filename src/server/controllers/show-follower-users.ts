@@ -1,4 +1,4 @@
-import { client } from "src/discord-bot";
+import { client } from "src/server/discord-bot";
 import { TextChannel } from "discord.js";
 
 client.on("interactionCreate", async (interaction) => {

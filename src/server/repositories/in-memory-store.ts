@@ -1,4 +1,4 @@
-import { User, UsersRepository } from "src/models/user";
+import { User, UsersRepository } from "src/server/models/user";
 
 export class InMemoryRepository implements UsersRepository {
   private users: { [id: string]: User } = {};

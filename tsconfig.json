@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "experimentalDecorators": true,
-    "module": "ES6",
+    "module": "ESNext",
     "target": "ES6",
     "sourceMap": true,
     "strict": true,

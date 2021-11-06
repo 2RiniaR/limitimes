@@ -1,7 +1,7 @@
 import { Message, MessageEmbed } from "discord.js";
-import { client } from "src/discord-bot";
-import { getSystemMessageEmbed } from "src/views/system-message";
-import { getQuoteEmbed } from "src/views/quote";
+import { client } from "src/server/discord-bot";
+import { getSystemMessageEmbed } from "src/server/views/system-message";
+import { getQuoteEmbed } from "src/server/views/quote";
 
 client.on("messageCreate", async (message) => {
   if (message.author.bot || !message.channel.isText()) return;

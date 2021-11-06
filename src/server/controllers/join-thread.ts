@@ -1,4 +1,4 @@
-import { client } from "src/discord-bot";
+import { client } from "src/server/discord-bot";
 
 // スレッドが作成されたとき、自動で参加する
 client.on("threadCreate", async (thread) => {
