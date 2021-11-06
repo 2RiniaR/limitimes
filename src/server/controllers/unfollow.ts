@@ -43,14 +43,9 @@ export async function unfollowUser({ interaction, requestDiscordUser, targetDisc
 
     requestUser.unfollowUser(targetUser);
     requestUser.update();
+    await responseForSuccess(interaction, { targetUserName: targetDiscordUser.toString() });
   } catch (error) {
-    if (error instanceof UnfollowTargetNotFoundError) {
-      await responseForTargetIsNotFollowed(interaction);
-    } else {
-      await responseForFailed(interaction);
-    }
-    return;
+    if (error instanceof UnfollowTargetNotFoundError) await responseForTargetIsNotFollowed(interaction);
+    else await responseForFailed(interaction);
   }
-
-  await responseForSuccess(interaction, { targetUserName: targetDiscordUser.toString() });
 }

@@ -23,6 +23,17 @@ function getCommands(): object[] {
     {
       name: "unfollow",
       type: 2 // ユーザーを右クリックして実行できるコマンド
+    },
+    {
+      name: "times",
+      description: "limitimesのコマンド群",
+      options: [
+        {
+          type: 1,
+          name: "show-following-users",
+          description: "あなたがフォローしているユーザーの一覧を表示する"
+        }
+      ]
     }
   ];
 }

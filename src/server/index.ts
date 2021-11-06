@@ -4,4 +4,4 @@ import "./controllers";
 
 console.log("LIMITIMES BOT STARTED!");
 settings.load();
-initializeDiscord();
+void initializeDiscord();

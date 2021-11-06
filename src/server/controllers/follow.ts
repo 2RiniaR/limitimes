@@ -55,16 +55,10 @@ export async function followUser({ interaction, requestDiscordUser, targetDiscor
 
     requestUser.followUser(targetUser);
     requestUser.update();
+    await responseForSuccess(interaction, { targetUserName: targetDiscordUser.toString() });
   } catch (error) {
-    if (error instanceof FollowingSelfError) {
-      await responseForTargetIsBot(interaction);
-    } else if (error instanceof AlreadyFollowedError) {
-      await responseForAlreadyFollowed(interaction);
-    } else {
-      await responseForFailed(interaction);
-    }
-    return;
+    if (error instanceof FollowingSelfError) await responseForTargetIsBot(interaction);
+    else if (error instanceof AlreadyFollowedError) await responseForAlreadyFollowed(interaction);
+    else await responseForFailed(interaction);
   }
-
-  await responseForSuccess(interaction, { targetUserName: targetDiscordUser.toString() });
 }
