@@ -1,6 +1,6 @@
 import { client } from "src/server/discord";
 import { CommandInteraction, User as DiscordUser } from "discord.js";
-import { responseForFailed, responseForSuccess } from "src/server/views/show-following-users";
+import { responseForFailed, responseForSucceed } from "src/server/views/show-following-users";
 import { User } from "src/server/models/user";
 import { settings } from "src/server/settings";
 import { checkRegisterUser } from "src/server/controllers/register-user";
@@ -52,7 +52,7 @@ export async function showFollowingUsers({ interaction, requestDiscordUser }: Sh
     const requestUser = new User(requestDiscordUser.id);
     requestUser.fetch();
     const followingDiscordUsers = await fetchFollowingUsers(requestUser);
-    await responseForSuccess(interaction, { followingUserNames: followingDiscordUsers.map((user) => user.toString()) });
+    await responseForSucceed(interaction, { followingUserNames: followingDiscordUsers.map((user) => user.toString()) });
   } catch (error) {
     await responseForFailed(interaction);
   }

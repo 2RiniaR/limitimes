@@ -24,6 +24,6 @@ export async function responseForFailed(interaction: ReplyTarget, { userName }: 
   const message = `ユーザーの登録に失敗しました。\n${userName}`;
   await interaction.reply({
     ephemeral: true,
-    embeds: [getSystemMessageEmbed({ type: "failed" }).setDescription(message)]
+    embeds: [getSystemMessageEmbed({ type: "error" }).setDescription(message)]
   });
 }

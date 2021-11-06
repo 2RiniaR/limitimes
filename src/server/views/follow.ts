@@ -22,11 +22,11 @@ export async function responseForFailed(interaction: ReplyTarget) {
   const message = "フォローに失敗しました。";
   await interaction.reply({
     ephemeral: true,
-    embeds: [getSystemMessageEmbed({ type: "failed" }).setDescription(message)]
+    embeds: [getSystemMessageEmbed({ type: "error" }).setDescription(message)]
   });
 }
 
-export async function responseForSuccess(interaction: ReplyTarget, { targetUserName }: { targetUserName: string }) {
+export async function responseForSucceed(interaction: ReplyTarget, { targetUserName }: { targetUserName: string }) {
   const message = `${targetUserName}をフォローしました！`;
   await interaction.reply({
     ephemeral: true,

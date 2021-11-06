@@ -2,7 +2,7 @@ import { client } from "src/server/discord";
 import { ContextMenuInteraction, User as DiscordUser } from "discord.js";
 import { UnfollowTargetNotFoundError, User } from "src/server/models/user";
 import { settings } from "src/server/settings";
-import { responseForFailed, responseForTargetIsNotFollowed, responseForSuccess } from "src/server/views/unfollow";
+import { responseForFailed, responseForTargetIsNotFollowed, responseForSucceed } from "src/server/views/unfollow";
 import { checkRegisterUser } from "src/server/controllers/register-user";
 
 client.on("interactionCreate", async (interaction) => {
@@ -37,7 +37,7 @@ export async function unfollowUser({ interaction, requestDiscordUser, targetDisc
     requestUser.unfollowUser(targetUser);
     requestUser.update();
 
-    await responseForSuccess(interaction, { targetUserName: targetDiscordUser.toString() });
+    await responseForSucceed(interaction, { targetUserName: targetDiscordUser.toString() });
   } catch (error) {
     if (error instanceof UnfollowTargetNotFoundError) await responseForTargetIsNotFollowed(interaction);
     else await responseForFailed(interaction);

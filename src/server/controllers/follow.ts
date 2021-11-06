@@ -6,7 +6,7 @@ import {
   responseForAlreadyFollowed,
   responseForFailed,
   responseForFollowingSelf,
-  responseForSuccess
+  responseForSucceed
 } from "src/server/views/follow";
 import { checkRegisterUser } from "src/server/controllers/register-user";
 
@@ -47,7 +47,7 @@ export async function followUser({ interaction, requestDiscordUser, targetDiscor
     requestUser.followUser(targetUser);
     requestUser.update();
 
-    await responseForSuccess(interaction, { targetUserName: targetDiscordUser.toString() });
+    await responseForSucceed(interaction, { targetUserName: targetDiscordUser.toString() });
   } catch (error) {
     if (error instanceof FollowingSelfError) await responseForFollowingSelf(interaction);
     else if (error instanceof AlreadyFollowedError) await responseForAlreadyFollowed(interaction);

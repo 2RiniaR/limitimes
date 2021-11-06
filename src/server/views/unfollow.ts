@@ -13,11 +13,11 @@ export async function responseForFailed(interaction: ReplyTarget) {
   const message = "フォローの解除に失敗しました。";
   await interaction.reply({
     ephemeral: true,
-    embeds: [getSystemMessageEmbed({ type: "invalid" }).setDescription(message)]
+    embeds: [getSystemMessageEmbed({ type: "error" }).setDescription(message)]
   });
 }
 
-export async function responseForSuccess(interaction: ReplyTarget, { targetUserName }: { targetUserName: string }) {
+export async function responseForSucceed(interaction: ReplyTarget, { targetUserName }: { targetUserName: string }) {
   const message = `${targetUserName}のフォローを解除しました。`;
   await interaction.reply({
     ephemeral: true,

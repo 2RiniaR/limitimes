@@ -5,11 +5,11 @@ export async function responseForFailed(interaction: ReplyTarget) {
   const message = "フォロー中のユーザー一覧を取得することに失敗しました。";
   await interaction.reply({
     ephemeral: true,
-    embeds: [getSystemMessageEmbed({ type: "failed" }).setDescription(message)]
+    embeds: [getSystemMessageEmbed({ type: "error" }).setDescription(message)]
   });
 }
 
-export async function responseForSuccess(
+export async function responseForSucceed(
   interaction: ReplyTarget,
   { followingUserNames }: { followingUserNames: string[] }
 ) {
