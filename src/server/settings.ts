@@ -3,7 +3,8 @@ import * as dotenv from "dotenv";
 export type ApplicationSettings = {
   discordToken: string;
   targetGuildId: string;
-  targetChannelId: string;
+  timelineChannelId: string;
+  mainChannelId: string;
 };
 
 class SettingsManager {
@@ -11,7 +12,8 @@ class SettingsManager {
   private _values: ApplicationSettings = {
     discordToken: "",
     targetGuildId: "",
-    targetChannelId: ""
+    timelineChannelId: "",
+    mainChannelId: ""
   };
 
   get values(): ApplicationSettings {
@@ -24,7 +26,8 @@ class SettingsManager {
     this._values = {
       discordToken: SettingsManager.getEnvironmentVariable("DISCORD_TOKEN"),
       targetGuildId: SettingsManager.getEnvironmentVariable("TARGET_GUILD_ID"),
-      targetChannelId: SettingsManager.getEnvironmentVariable("TARGET_CHANNEL_ID")
+      timelineChannelId: SettingsManager.getEnvironmentVariable("TIMELINE_CHANNEL_ID"),
+      mainChannelId: SettingsManager.getEnvironmentVariable("MAIN_CHANNEL_ID")
     };
   }
 
