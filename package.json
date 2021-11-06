@@ -29,7 +29,6 @@
     "webpack-node-externals": "^3.0.0"
   },
   "dependencies": {
-    "@discordjs/builders": "^0.8.2",
     "@discordjs/rest": "^0.1.0-canary.0",
     "dayjs": "^1.10.7",
     "discord-api-types": "^0.24.0",
