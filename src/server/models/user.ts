@@ -6,7 +6,9 @@ export interface UsersRepository {
 }
 
 export class FollowingSelfError extends Error {}
+export class NotFoundError extends Error {}
 export class AlreadyFollowedError extends Error {}
+export class AlreadyExistError extends Error {}
 export class UnfollowTargetNotFoundError extends Error {}
 
 export class User {
@@ -22,15 +24,18 @@ export class User {
   }
 
   public update() {
+    if (!this.isExist()) throw new NotFoundError();
     repository.push(this);
   }
 
   public create() {
+    if (this.isExist()) throw new AlreadyExistError();
     this._followingUsers = [];
     repository.push(this);
   }
 
   public fetch() {
+    if (!this.isExist()) throw new NotFoundError();
     repository.pull(this);
   }
 

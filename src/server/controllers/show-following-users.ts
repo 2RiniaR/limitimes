@@ -1,12 +1,9 @@
 import { client } from "src/server/discord";
 import { CommandInteraction, User as DiscordUser } from "discord.js";
-import {
-  responseForRequesterIsBot,
-  responseForFailed,
-  responseForSuccess
-} from "src/server/views/show-following-users";
+import { responseForFailed, responseForSucceed } from "src/server/views/show-following-users";
 import { User } from "src/server/models/user";
 import { settings } from "src/server/settings";
+import { checkRegisterUser } from "src/server/controllers/register-user";
 
 client.on("interactionCreate", async (interaction) => {
   if (
@@ -49,18 +46,13 @@ async function fetchUsers(usersId: string[]): Promise<DiscordUser[]> {
 }
 
 export async function showFollowingUsers({ interaction, requestDiscordUser }: ShowFollowingUsersContext) {
-  if (requestDiscordUser.bot) {
-    await responseForRequesterIsBot(interaction);
-    return;
-  }
+  if (!(await checkRegisterUser(interaction, requestDiscordUser))) return;
 
   try {
     const requestUser = new User(requestDiscordUser.id);
-    if (!requestUser.isExist()) requestUser.create();
-    else requestUser.fetch();
-
+    requestUser.fetch();
     const followingDiscordUsers = await fetchFollowingUsers(requestUser);
-    await responseForSuccess(interaction, { followingUserNames: followingDiscordUsers.map((user) => user.toString()) });
+    await responseForSucceed(interaction, { followingUserNames: followingDiscordUsers.map((user) => user.toString()) });
   } catch (error) {
     await responseForFailed(interaction);
   }

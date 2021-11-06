@@ -7,21 +7,21 @@ failed  : ユーザーの操作は誤ってないが、処理が想定内の失�
 warning : システムの警告
 error   : システムのエラー
  */
-export type SystemMessageType = "info" | "invalid" | "failed" | "warning" | "error";
+export type SystemMessageType = "succeed" | "info" | "invalid" | "failed" | "warning" | "error";
 
 const generators: { [type in SystemMessageType]: () => MessageEmbed } = {
-  info: () => new MessageEmbed().setTitle("INFO").setColor("GREY"),
-  invalid: () => new MessageEmbed().setTitle("INVALID").setColor("DARK_GOLD"),
-  failed: () => new MessageEmbed().setTitle("FAILED").setColor("DARK_RED"),
-  warning: () => new MessageEmbed().setTitle("WARNING").setColor("YELLOW"),
-  error: () => new MessageEmbed().setTitle("ERROR").setColor("RED")
+  succeed: () => new MessageEmbed().setTitle("✅成功").setColor("GREEN"),
+  info: () => new MessageEmbed().setTitle("ℹ情報").setColor("GREY"),
+  invalid: () => new MessageEmbed().setTitle("⛔拒否").setColor("DARK_GOLD"),
+  failed: () => new MessageEmbed().setTitle("❌失敗").setColor("DARK_RED"),
+  warning: () => new MessageEmbed().setTitle("⚠警告").setColor("YELLOW"),
+  error: () => new MessageEmbed().setTitle("‼エラー").setColor("RED")
 };
 
 export type SystemMessageProps = {
   type: SystemMessageType;
-  message: string;
 };
 
-export function getSystemMessageEmbed({ type, message }: SystemMessageProps): MessageEmbed {
-  return generators[type]().setAuthor("SYSTEM").setDescription(message);
+export function getSystemMessageEmbed({ type }: SystemMessageProps): MessageEmbed {
+  return generators[type]();
 }

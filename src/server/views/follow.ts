@@ -1,44 +1,35 @@
-import { ContextMenuInteraction } from "discord.js";
+import { getSystemMessageEmbed } from "src/server/views/system-message";
+import { ReplyTarget } from "src/server/views/index";
 
-export async function responseForRequesterIsBot(interaction: ContextMenuInteraction) {
+export async function responseForFollowingSelf(interaction: ReplyTarget) {
+  const message = "自分をフォローする気ですか？鏡ならばお風呂場にありますよ。";
   await interaction.reply({
     ephemeral: true,
-    content: "⛔あなたはbotですね？ bot風情が人間様を監視するなんて100年早いですよ？"
+    embeds: [getSystemMessageEmbed({ type: "invalid" }).setDescription(message)]
   });
 }
 
-export async function responseForTargetIsBot(interaction: ContextMenuInteraction) {
+export async function responseForAlreadyFollowed(interaction: ReplyTarget) {
+  const message =
+    "あなたがその人を愛してやまない気持ちはわかりますが、フォローしている相手をフォローすることはできません。";
   await interaction.reply({
     ephemeral: true,
-    content: "⛔あれはbotです！見ちゃいけません！"
+    embeds: [getSystemMessageEmbed({ type: "invalid" }).setDescription(message)]
   });
 }
 
-export async function responseForFollowingSelf(interaction: ContextMenuInteraction) {
+export async function responseForFailed(interaction: ReplyTarget) {
+  const message = "フォローに失敗しました。";
   await interaction.reply({
     ephemeral: true,
-    content: "⛔自分をフォローする気ですか？鏡ならばお風呂場にありますよ。"
+    embeds: [getSystemMessageEmbed({ type: "error" }).setDescription(message)]
   });
 }
 
-export async function responseForAlreadyFollowed(interaction: ContextMenuInteraction) {
+export async function responseForSucceed(interaction: ReplyTarget, { targetUserName }: { targetUserName: string }) {
+  const message = `${targetUserName}をフォローしました！`;
   await interaction.reply({
     ephemeral: true,
-    content:
-      "⛔あなたがその人を愛してやまない気持ちはわかりますが、フォローしている相手をフォローすることはできません。"
+    embeds: [getSystemMessageEmbed({ type: "succeed" }).setDescription(message)]
   });
-}
-
-export async function responseForFailed(interaction: ContextMenuInteraction) {
-  await interaction.reply({
-    ephemeral: true,
-    content: "⛔フォローに失敗しました。"
-  });
-}
-
-export async function responseForSuccess(
-  interaction: ContextMenuInteraction,
-  { targetUserName }: { targetUserName: string }
-) {
-  await interaction.reply({ ephemeral: true, content: `🚩${targetUserName}をフォローしました！` });
 }
