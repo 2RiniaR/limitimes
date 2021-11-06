@@ -1,5 +1,5 @@
 import { Message, MessageEmbed } from "discord.js";
-import { client } from "src/server/discord-bot";
+import { client } from "src/server/discord";
 import { getSystemMessageEmbed } from "src/server/views/system-message";
 import { getQuoteEmbed } from "src/server/views/quote";
 

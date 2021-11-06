@@ -17,11 +17,11 @@ function getEnvironmentVariable(name: string): string {
 function getCommands(): object[] {
   return [
     {
-      name: "フォローする",
+      name: "follow",
       type: 2 // ユーザーを右クリックして実行できるコマンド
     },
     {
-      name: "フォローを解除する",
+      name: "unfollow",
       type: 2 // ユーザーを右クリックして実行できるコマンド
     }
   ];

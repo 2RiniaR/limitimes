@@ -1,28 +1,56 @@
-import { client } from "src/server/discord-bot";
-import { TextChannel, User } from "discord.js";
+import { client } from "src/server/discord";
+import { ContextMenuInteraction, User as DiscordUser } from "discord.js";
+import { UnfollowTargetNotFoundError, User } from "src/server/models/user";
+import { settings } from "src/server/settings";
+import {
+  responseForFailed,
+  responseForTargetIsNotFollowed,
+  responseForRequesterIsBot,
+  responseForSuccess
+} from "src/server/views/unfollow";
 
 client.on("interactionCreate", async (interaction) => {
-  if (
-    !interaction.isCommand() ||
-    interaction.commandName !== "unfollow" ||
-    !interaction.channel ||
-    !interaction.channel.isText()
-  )
-    return;
+  if (!interaction.isContextMenu() || interaction.commandName !== "unfollow") return;
+  const targetGuild = await client.guilds.fetch(settings.values.targetGuildId);
+  const targetGuildMember = await targetGuild.members.fetch(interaction.targetId);
+  const targetUser = targetGuildMember.user;
   await unfollowUser({
-    requestUser: interaction.user,
-    targetUser: interaction.user,
-    channel: interaction.channel as TextChannel
+    interaction: interaction,
+    requestDiscordUser: interaction.user,
+    targetDiscordUser: targetUser
   });
 });
 
 export type UnfollowUserContext = {
-  requestUser: User;
-  targetUser: User;
-  channel: TextChannel;
+  interaction: ContextMenuInteraction;
+  requestDiscordUser: DiscordUser;
+  targetDiscordUser: DiscordUser;
 };
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export async function unfollowUser(context: UnfollowUserContext) {
-  // ToDo: ユーザーのフォローを解除する
+export async function unfollowUser({ interaction, requestDiscordUser, targetDiscordUser }: UnfollowUserContext) {
+  if (requestDiscordUser.bot) {
+    await responseForRequesterIsBot(interaction);
+    return;
+  }
+
+  try {
+    const requestUser = new User(requestDiscordUser.id);
+    if (!requestUser.isExist()) requestUser.create();
+    else requestUser.fetch();
+
+    const targetUser = new User(targetDiscordUser.id);
+    if (!targetUser.isExist()) targetUser.create();
+
+    requestUser.unfollowUser(targetUser);
+    requestUser.update();
+  } catch (error) {
+    if (error instanceof UnfollowTargetNotFoundError) {
+      await responseForTargetIsNotFollowed(interaction);
+    } else {
+      await responseForFailed(interaction);
+    }
+    return;
+  }
+
+  await responseForSuccess(interaction, { targetUserName: targetDiscordUser.toString() });
 }

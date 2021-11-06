@@ -1,2 +1,3 @@
 import "./send-quote";
-import "./join-thread";
+import "./follow";
+import "./unfollow";

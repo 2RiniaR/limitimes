@@ -3,6 +3,11 @@ import { User, UsersRepository } from "src/server/models/user";
 export class InMemoryRepository implements UsersRepository {
   private users: { [id: string]: User } = {};
 
+  public isExist(user: User): boolean {
+    if (!user.discordId) throw Error();
+    return !!this.users[user.discordId];
+  }
+
   public push(user: User) {
     if (!user.discordId) throw Error();
     this.users[user.discordId] = user;
