@@ -1,5 +1,15 @@
+import { client } from "src/server/discord";
+import { Message } from "discord.js";
+
+client.on("messageCreate", async (message) => {
+  if (message.author.bot || message.channel.type !== "DM") return;
+  await requestSubmitPost({
+    message: message
+  });
+});
+
 type RequestSubmitPostContext = {
-  userId: string;
+  message: Message;
 };
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

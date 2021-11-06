@@ -6,10 +6,9 @@ import {
   responseForAlreadyFollowed,
   responseForFailed,
   responseForFollowingSelf,
-  responseForRequesterIsBot,
-  responseForSuccess,
-  responseForTargetIsBot
+  responseForSuccess
 } from "src/server/views/follow";
+import { checkRegisterUser } from "src/server/controllers/register-user";
 
 client.on("interactionCreate", async (interaction) => {
   if (!interaction.isContextMenu() || interaction.commandName !== "follow") return;
@@ -30,15 +29,11 @@ export type FollowUserContext = {
 };
 
 export async function followUser({ interaction, requestDiscordUser, targetDiscordUser }: FollowUserContext) {
-  if (requestDiscordUser.bot) {
-    await responseForRequesterIsBot(interaction);
+  if (
+    !(await checkRegisterUser(interaction, requestDiscordUser)) ||
+    !(await checkRegisterUser(interaction, targetDiscordUser))
+  )
     return;
-  }
-
-  if (targetDiscordUser.bot) {
-    await responseForTargetIsBot(interaction);
-    return;
-  }
 
   if (requestDiscordUser.id === targetDiscordUser.id) {
     await responseForFollowingSelf(interaction);
@@ -47,17 +42,14 @@ export async function followUser({ interaction, requestDiscordUser, targetDiscor
 
   try {
     const requestUser = new User(requestDiscordUser.id);
-    if (!requestUser.isExist()) requestUser.create();
-    else requestUser.fetch();
-
     const targetUser = new User(targetDiscordUser.id);
-    if (!targetUser.isExist()) targetUser.create();
-
+    requestUser.fetch();
     requestUser.followUser(targetUser);
     requestUser.update();
+
     await responseForSuccess(interaction, { targetUserName: targetDiscordUser.toString() });
   } catch (error) {
-    if (error instanceof FollowingSelfError) await responseForTargetIsBot(interaction);
+    if (error instanceof FollowingSelfError) await responseForFollowingSelf(interaction);
     else if (error instanceof AlreadyFollowedError) await responseForAlreadyFollowed(interaction);
     else await responseForFailed(interaction);
   }

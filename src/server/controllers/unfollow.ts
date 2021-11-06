@@ -2,12 +2,8 @@ import { client } from "src/server/discord";
 import { ContextMenuInteraction, User as DiscordUser } from "discord.js";
 import { UnfollowTargetNotFoundError, User } from "src/server/models/user";
 import { settings } from "src/server/settings";
-import {
-  responseForFailed,
-  responseForTargetIsNotFollowed,
-  responseForRequesterIsBot,
-  responseForSuccess
-} from "src/server/views/unfollow";
+import { responseForFailed, responseForTargetIsNotFollowed, responseForSuccess } from "src/server/views/unfollow";
+import { checkRegisterUser } from "src/server/controllers/register-user";
 
 client.on("interactionCreate", async (interaction) => {
   if (!interaction.isContextMenu() || interaction.commandName !== "unfollow") return;
@@ -28,21 +24,19 @@ export type UnfollowUserContext = {
 };
 
 export async function unfollowUser({ interaction, requestDiscordUser, targetDiscordUser }: UnfollowUserContext) {
-  if (requestDiscordUser.bot) {
-    await responseForRequesterIsBot(interaction);
+  if (
+    !(await checkRegisterUser(interaction, requestDiscordUser)) ||
+    !(await checkRegisterUser(interaction, targetDiscordUser))
+  )
     return;
-  }
 
   try {
     const requestUser = new User(requestDiscordUser.id);
-    if (!requestUser.isExist()) requestUser.create();
-    else requestUser.fetch();
-
     const targetUser = new User(targetDiscordUser.id);
-    if (!targetUser.isExist()) targetUser.create();
-
+    requestUser.fetch();
     requestUser.unfollowUser(targetUser);
     requestUser.update();
+
     await responseForSuccess(interaction, { targetUserName: targetDiscordUser.toString() });
   } catch (error) {
     if (error instanceof UnfollowTargetNotFoundError) await responseForTargetIsNotFollowed(interaction);

@@ -43,7 +43,7 @@ async function getReferencesEmbed(ref: MessageReference): Promise<MessageEmbed> 
     return getQuoteEmbed({ message: refMessage });
   } catch (error) {
     if (error instanceof Error) {
-      return getSystemMessageEmbed({ type: "failed", message: error.toString() });
+      return getSystemMessageEmbed({ type: "failed" }).setDescription(error.toString());
     }
     throw error;
   }

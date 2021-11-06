@@ -1,29 +1,23 @@
-import { CommandInteraction, MessageEmbed } from "discord.js";
+import { getSystemMessageEmbed } from "src/server/views/system-message";
+import { ReplyTarget } from "src/server/views/index";
 
-export async function responseForRequesterIsBot(interaction: CommandInteraction) {
+export async function responseForFailed(interaction: ReplyTarget) {
+  const message = "フォロー中のユーザー一覧を取得することに失敗しました。";
   await interaction.reply({
     ephemeral: true,
-    content: "⛔あなたはbotですね？"
-  });
-}
-
-export async function responseForFailed(interaction: CommandInteraction) {
-  await interaction.reply({
-    ephemeral: true,
-    content: "⛔フォローに失敗しました。"
+    embeds: [getSystemMessageEmbed({ type: "failed" }).setDescription(message)]
   });
 }
 
 export async function responseForSuccess(
-  interaction: CommandInteraction,
+  interaction: ReplyTarget,
   { followingUserNames }: { followingUserNames: string[] }
 ) {
   await interaction.reply({
     ephemeral: true,
     embeds: [
-      new MessageEmbed()
+      getSystemMessageEmbed({ type: "succeed" })
         .setTitle("フォロー中")
-        .setColor("GREEN")
         .setDescription(followingUserNames.join("\n"))
         .setFooter(`合計 ${followingUserNames.length}人`)
     ]
