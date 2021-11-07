@@ -1,5 +1,6 @@
 import { client } from "src/server/discord";
 import { Message } from "discord.js";
+import { checkRegisterUser } from "src/server/controllers/register-user";
 
 client.on("messageCreate", async (message) => {
   if (message.author.bot || message.channel.type !== "DM") return;
@@ -12,9 +13,8 @@ type RequestSubmitPostContext = {
   message: Message;
 };
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export async function requestSubmitPost(context: RequestSubmitPostContext) {
-  // ToDo: 投稿を送信する
+export async function requestSubmitPost({ message }: RequestSubmitPostContext) {
+  if (!(await checkRegisterUser(message, message.author))) return;
   // DMに送られたメッセージと同じ内容を、ストリームチャンネルにEmbedで送信する
   // 投稿したユーザーをフォローしているユーザーのDMに、ストリームチャンネルに送信した投稿の引用をSendQuoteで送信する
   // 送信完了のメッセージを投稿したユーザーとのDMに送信する

@@ -1,6 +1,11 @@
 import { Message, TextChannel } from "discord.js";
 import { client } from "src/server/discord";
-import { QuoteProps, responseForFailed, responseForMessageNotFound, responseForSucceed } from "src/server/views/quote";
+import {
+  QuoteProps,
+  responseForFailed,
+  responseForMessageNotFound,
+  responseForSucceed
+} from "src/server/views/send-quote";
 import { MessageReference, findMessageReferencesFromText } from "src/server/helpers/find-message-refs";
 
 client.on("messageCreate", async (message) => {

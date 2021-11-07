@@ -2,8 +2,8 @@ import { client } from "src/server/discord";
 import { CommandInteraction, User as DiscordUser } from "discord.js";
 import { responseForFailed, responseForSucceed } from "src/server/views/show-following-users";
 import { User } from "src/server/models/user";
-import { settings } from "src/server/settings";
 import { checkRegisterUser } from "src/server/controllers/register-user";
+import { discordCache } from "src/server/discord/cache";
 
 client.on("interactionCreate", async (interaction) => {
   if (
@@ -36,7 +36,7 @@ async function fetchFollowingUsers(user: User): Promise<DiscordUser[]> {
 }
 
 async function fetchUsers(usersId: string[]): Promise<DiscordUser[]> {
-  const targetGuild = await client.guilds.fetch(settings.values.targetGuildId);
+  const targetGuild = await discordCache.getTargetGuild();
   return await Promise.all(
     usersId.map(async (user) => {
       const guildMember = await targetGuild.members.fetch(user);
