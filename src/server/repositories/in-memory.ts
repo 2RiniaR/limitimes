@@ -8,14 +8,14 @@ type UserDocument = {
 export class InMemoryRepository implements UsersRepository {
   private users: { [id: string]: UserDocument } = {};
 
-  public isExist(user: User | string): boolean {
-    const targetId = user instanceof User ? user.discordId : user;
-    return !!this.users[targetId];
+  public async isExist(user: User | string): Promise<boolean> {
+    const targetId = user instanceof User ? user.id : user;
+    return Promise.resolve(!!this.users[targetId]);
   }
 
-  private register(src: User) {
-    if (this.isExist(src.discordId)) return;
-    this.users[src.discordId] = {
+  private async register(src: User) {
+    if (await this.isExist(src.id)) return;
+    this.users[src.id] = {
       followerUsersId: new Set<string>(),
       followingUsersId: new Set<string>()
     };
@@ -23,32 +23,31 @@ export class InMemoryRepository implements UsersRepository {
 
   private pushFollowingUsers(src: User) {
     if (!src.followingUsers) return;
-    const followingUsersId = src.followingUsers.map((user) => user.discordId);
-    this.users[src.discordId] = { ...this.users[src.discordId], followingUsersId: new Set<string>(followingUsersId) };
-    followingUsersId.forEach((userId) => this.users[userId].followerUsersId.add(src.discordId));
+    const followingUsersId = src.followingUsers.map((user) => user.id);
+    this.users[src.id] = { ...this.users[src.id], followingUsersId: new Set<string>(followingUsersId) };
+    followingUsersId.forEach((userId) => this.users[userId].followerUsersId.add(src.id));
   }
 
   private pushFollowerUsers(src: User) {
     if (!src.followerUsers) return;
-    const followerUsersId = src.followerUsers.map((user) => user.discordId);
-    this.users[src.discordId] = { ...this.users[src.discordId], followerUsersId: new Set<string>(followerUsersId) };
-    followerUsersId.forEach((userId) => this.users[userId].followingUsersId.add(src.discordId));
+    const followerUsersId = src.followerUsers.map((user) => user.id);
+    this.users[src.id] = { ...this.users[src.id], followerUsersId: new Set<string>(followerUsersId) };
+    followerUsersId.forEach((userId) => this.users[userId].followingUsersId.add(src.id));
   }
 
-  public push(src: User) {
-    this.register(src);
+  public async push(src: User) {
+    await this.register(src);
     this.pushFollowingUsers(src);
     this.pushFollowerUsers(src);
   }
 
-  public pull(dist: User) {
-    const src = this.users[dist.discordId];
+  public async pull(dist: User) {
+    const src = this.users[dist.id];
     if (!src) return;
     Object.assign(dist, {
       _followingUsers: Array.from(src.followingUsersId).map((id) => new User(id)),
       _followerUsers: Array.from(src.followerUsersId).map((id) => new User(id))
     });
+    return Promise.resolve();
   }
 }
-
-export const repository = new InMemoryRepository();

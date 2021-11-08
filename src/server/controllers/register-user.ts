@@ -23,10 +23,10 @@ async function isJoinedToTargetGuild(user: DiscordUser): Promise<boolean> {
 
 export async function registerUserIfNotExist({ discordUser }: RegisterUserContext) {
   const requestUser = new User(discordUser.id);
-  if (requestUser.isExist()) return;
+  if (await requestUser.isExist()) return;
   if (discordUser.bot) throw new BotCanNotRegisteredError();
   if (!(await isJoinedToTargetGuild(discordUser))) throw new UserIsNotJoinedToTargetGuildError();
-  requestUser.create();
+  await requestUser.create();
 }
 
 export async function checkRegisterUser(interaction: ReplyTarget, user: DiscordUser): Promise<boolean> {

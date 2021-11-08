@@ -37,9 +37,9 @@ export async function unfollowUser({ interaction, requestDiscordUser, targetDisc
   try {
     const requestUser = new User(requestDiscordUser.id);
     const targetUser = new User(targetDiscordUser.id);
-    requestUser.fetch();
+    await requestUser.fetch();
     requestUser.unfollowUser(targetUser);
-    requestUser.update();
+    await requestUser.update();
 
     await responseForSucceed(interaction, { targetUserName: targetDiscordUser.toString() });
   } catch (error) {

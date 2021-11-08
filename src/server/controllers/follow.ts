@@ -43,9 +43,9 @@ export async function followUser({ interaction, requestDiscordUser, targetDiscor
   try {
     const requestUser = new User(requestDiscordUser.id);
     const targetUser = new User(targetDiscordUser.id);
-    requestUser.fetch();
+    await requestUser.fetch();
     requestUser.followUser(targetUser);
-    requestUser.update();
+    await requestUser.update();
 
     await responseForSucceed(interaction, { targetUserName: targetDiscordUser.toString() });
   } catch (error) {

@@ -1,4 +1,5 @@
 import "./helpers";
+import "./firebase";
 import { initialize as initializeDiscord } from "./discord";
 import { settings } from "./settings";
 import "./controllers";

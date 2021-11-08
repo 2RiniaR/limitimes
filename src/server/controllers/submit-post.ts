@@ -36,7 +36,7 @@ async function sendPostToTimelineChannel(message: Message): Promise<Message> {
 
 async function getFollowerUsers(message: Message): Promise<DiscordUser[]> {
   const postUser = new User(message.author.id);
-  postUser.fetch();
+  await postUser.fetch();
   return await fetchFollowerUsers(postUser);
 }
 

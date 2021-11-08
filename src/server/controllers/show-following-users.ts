@@ -30,7 +30,7 @@ export async function showFollowingUsers({ interaction, requestDiscordUser }: Sh
 
   try {
     const requestUser = new User(requestDiscordUser.id);
-    requestUser.fetch();
+    await requestUser.fetch();
     const followingDiscordUsers = await fetchFollowingUsers(requestUser);
     await responseForSucceed(interaction, { followingUserNames: followingDiscordUsers.map((user) => user.toString()) });
   } catch (error) {

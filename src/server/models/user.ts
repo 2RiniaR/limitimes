@@ -1,8 +1,9 @@
-import { repository } from "src/server/repositories/in-memory";
+import { repository } from "src/server/repositories";
 
 export interface UsersRepository {
-  push(user: User): void;
-  pull(user: User): void;
+  isExist(id: string): Promise<boolean>;
+  push(user: User): Promise<void>;
+  pull(user: User): Promise<void>;
 }
 
 export class FollowingSelfError extends Error {}
@@ -12,42 +13,41 @@ export class AlreadyExistError extends Error {}
 export class UnfollowTargetNotFoundError extends Error {}
 
 export class User {
-  public readonly discordId: string;
+  public readonly id: string;
   private _followingUsers?: User[];
   private _followerUsers?: User[];
 
-  constructor(discordId: string) {
-    this.discordId = discordId;
+  constructor(id: string) {
+    this.id = id;
   }
 
-  public isExist(): boolean {
-    return repository.isExist(this);
+  public isExist(): Promise<boolean> {
+    return repository.isExist(this.id);
   }
 
-  public update() {
-    if (!this.isExist()) throw new NotFoundError();
-    repository.push(this);
+  public async update() {
+    if (!(await this.isExist())) throw new NotFoundError();
+    await repository.push(this);
   }
 
-  public create() {
-    if (this.isExist()) throw new AlreadyExistError();
+  public async create() {
+    if (await this.isExist()) throw new AlreadyExistError();
     this._followingUsers = [];
-    repository.push(this);
+    await repository.push(this);
   }
 
-  public fetch() {
-    if (!this.isExist()) throw new NotFoundError();
-    repository.pull(this);
+  public async fetch() {
+    if (!(await this.isExist())) throw new NotFoundError();
+    await repository.pull(this);
   }
 
   private isSame(target: User): boolean {
-    if (!target.discordId || !this.discordId) throw Error("require properties are undefined.");
-    return this.discordId === target.discordId;
+    return this.id === target.id;
   }
 
   private isFollowing(target: User): boolean {
-    if (!target.discordId || !this._followingUsers) throw Error("require properties are undefined.");
-    return !!this._followingUsers.find((user) => user.discordId === target.discordId);
+    if (!this._followingUsers) throw Error("require properties are undefined.");
+    return !!this._followingUsers.find((user) => user.id === target.id);
   }
 
   public followUser(target: User) {
@@ -60,7 +60,7 @@ export class User {
   public unfollowUser(target: User) {
     if (!this._followingUsers) throw Error("require properties are undefined.");
     if (!this.isFollowing(target)) throw new UnfollowTargetNotFoundError();
-    this._followingUsers = this._followingUsers.filter((user) => user.discordId !== target.discordId);
+    this._followingUsers = this._followingUsers.filter((user) => user.id !== target.id);
   }
 
   get followingUsers(): User[] | undefined {

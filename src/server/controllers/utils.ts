@@ -4,13 +4,13 @@ import { discordCache } from "src/server/discord/cache";
 
 export async function fetchFollowerUsers(user: User): Promise<DiscordUser[]> {
   if (!user.followerUsers) throw Error();
-  const followerUsersId = user.followerUsers.map((user) => user.discordId);
+  const followerUsersId = user.followerUsers.map((user) => user.id);
   return await fetchUsers(followerUsersId);
 }
 
 export async function fetchFollowingUsers(user: User): Promise<DiscordUser[]> {
   if (!user.followingUsers) throw Error();
-  const followingUsersId = user.followingUsers.map((user) => user.discordId);
+  const followingUsersId = user.followingUsers.map((user) => user.id);
   return await fetchUsers(followingUsersId);
 }
 
