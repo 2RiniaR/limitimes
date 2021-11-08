@@ -12,11 +12,12 @@ export class AlreadyExistError extends Error {}
 export class UnfollowTargetNotFoundError extends Error {}
 
 export class User {
-  private readonly _discordId?: string;
+  public readonly discordId: string;
   private _followingUsers?: User[];
+  private _followerUsers?: User[];
 
   constructor(discordId: string) {
-    this._discordId = discordId;
+    this.discordId = discordId;
   }
 
   public isExist(): boolean {
@@ -46,7 +47,7 @@ export class User {
 
   private isFollowing(target: User): boolean {
     if (!target.discordId || !this._followingUsers) throw Error("require properties are undefined.");
-    return !!this._followingUsers.find((user) => user._discordId === target._discordId);
+    return !!this._followingUsers.find((user) => user.discordId === target.discordId);
   }
 
   public followUser(target: User) {
@@ -62,11 +63,11 @@ export class User {
     this._followingUsers = this._followingUsers.filter((user) => user.discordId !== target.discordId);
   }
 
-  get discordId(): string | undefined {
-    return this._discordId;
-  }
-
   get followingUsers(): User[] | undefined {
     return this._followingUsers;
+  }
+
+  get followerUsers(): User[] | undefined {
+    return this._followerUsers;
   }
 }

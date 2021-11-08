@@ -1,5 +1,5 @@
 import { getSystemMessageEmbed } from "src/server/views/system-message";
-import { ReplyTarget } from "src/server/views/index";
+import { ReplyTarget } from "src/server/views";
 
 export async function responseForUserIsBot(interaction: ReplyTarget, { userName }: { userName: string }) {
   const message = `ごめんなさい。当システムはbotお断りなんです。\n${userName}`;

@@ -1,5 +1,5 @@
 import { getSystemMessageEmbed } from "src/server/views/system-message";
-import { ReplyTarget } from "src/server/views/index";
+import { ReplyTarget } from "src/server/views";
 
 export async function responseForFollowingSelf(interaction: ReplyTarget) {
   const message = "自分をフォローする気ですか？鏡ならばお風呂場にありますよ。";

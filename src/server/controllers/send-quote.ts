@@ -1,12 +1,12 @@
-import { Message, TextChannel } from "discord.js";
+import { Message } from "discord.js";
 import { client } from "src/server/discord";
 import {
-  QuoteProps,
   responseForFailed,
   responseForMessageNotFound,
   responseForSucceed
-} from "src/server/views/send-quote";
+} from "src/server/views/responses/send-quote";
 import { MessageReference, findMessageReferencesFromText } from "src/server/helpers/find-message-refs";
+import { QuoteProps } from "src/server/views/quote";
 
 client.on("messageCreate", async (message) => {
   if (message.author.bot || !message.channel.isText()) return;
@@ -35,26 +35,6 @@ async function fetchMessageFromReference({ channelId, messageId }: MessageRefere
   return message;
 }
 
-function getGuildName(message: Message): string | undefined {
-  const name = message.guild?.name;
-  return name ? name : undefined;
-}
-
-function getChannelName(message: Message): string | undefined {
-  const channel = message.channel;
-  if (!(channel instanceof TextChannel)) return undefined;
-  return channel.name;
-}
-
-function getAvatarURL(message: Message): string | undefined {
-  const avatarURL = message.author.avatarURL();
-  return avatarURL ? avatarURL : undefined;
-}
-
-function getImagesURL(message: Message): string[] {
-  return message.attachments.map((attachment) => attachment.url);
-}
-
 // 送信されたメッセージから、メッセージリンク部分をすべて探し出し、それらの中身をEmbedとして返信する
 export async function sendQuote({ srcMessage }: SendQuoteContext) {
   const refs = findMessageReferencesFromText(srcMessage.content);
@@ -65,11 +45,11 @@ export async function sendQuote({ srcMessage }: SendQuoteContext) {
       const refMessage = await fetchMessageFromReference(ref);
       quotes.push({
         content: refMessage.content,
-        imagesURL: getImagesURL(refMessage),
+        imagesURL: refMessage.getImagesURL(),
         userName: refMessage.author.username,
-        userAvatarURL: getAvatarURL(refMessage),
-        guildName: getGuildName(refMessage),
-        channelName: getChannelName(refMessage),
+        userAvatarURL: refMessage.getAvatarURL(),
+        guildName: refMessage.getGuildName(),
+        channelName: refMessage.getChannelName(),
         createdAt: refMessage.createdAt
       });
     } catch (error) {
@@ -82,5 +62,6 @@ export async function sendQuote({ srcMessage }: SendQuoteContext) {
     }
   }
 
+  if (quotes.length === 0) return;
   await responseForSucceed(srcMessage, { quotes });
 }

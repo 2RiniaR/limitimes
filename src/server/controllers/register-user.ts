@@ -4,7 +4,7 @@ import {
   responseForUserIsBot,
   responseForUserIsNotJoinedToTargetGuild,
   responseForFailed
-} from "src/server/views/register-user";
+} from "src/server/views/responses/register-user";
 import { ReplyTarget } from "src/server/views";
 import { discordCache } from "src/server/discord/cache";
 

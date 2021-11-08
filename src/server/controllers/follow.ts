@@ -6,7 +6,7 @@ import {
   responseForFailed,
   responseForFollowingSelf,
   responseForSucceed
-} from "src/server/views/follow";
+} from "src/server/views/responses/follow";
 import { checkRegisterUser } from "src/server/controllers/register-user";
 import { discordCache } from "src/server/discord/cache";
 

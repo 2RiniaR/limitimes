@@ -1,9 +1,9 @@
 import { client } from "src/server/discord";
 import { CommandInteraction, User as DiscordUser } from "discord.js";
-import { responseForFailed, responseForSucceed } from "src/server/views/show-following-users";
+import { responseForFailed, responseForSucceed } from "src/server/views/responses/show-following-users";
 import { User } from "src/server/models/user";
 import { checkRegisterUser } from "src/server/controllers/register-user";
-import { discordCache } from "src/server/discord/cache";
+import { fetchFollowingUsers } from "src/server/controllers/utils";
 
 client.on("interactionCreate", async (interaction) => {
   if (
@@ -24,26 +24,6 @@ export type ShowFollowingUsersContext = {
   interaction: CommandInteraction;
   requestDiscordUser: DiscordUser;
 };
-
-async function fetchFollowingUsers(user: User): Promise<DiscordUser[]> {
-  const followingUsers = user.followingUsers;
-  if (!followingUsers) throw Error();
-  const followingUsersId = followingUsers.reduce((prev: string[], user) => {
-    if (!user.discordId) return prev;
-    return prev.concat([user.discordId]);
-  }, []);
-  return await fetchUsers(followingUsersId);
-}
-
-async function fetchUsers(usersId: string[]): Promise<DiscordUser[]> {
-  const targetGuild = await discordCache.getTargetGuild();
-  return await Promise.all(
-    usersId.map(async (user) => {
-      const guildMember = await targetGuild.members.fetch(user);
-      return guildMember.user;
-    })
-  );
-}
 
 export async function showFollowingUsers({ interaction, requestDiscordUser }: ShowFollowingUsersContext) {
   if (!(await checkRegisterUser(interaction, requestDiscordUser))) return;
