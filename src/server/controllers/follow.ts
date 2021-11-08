@@ -1,18 +1,18 @@
 import { client } from "src/server/discord";
 import { ContextMenuInteraction, User as DiscordUser } from "discord.js";
 import { AlreadyFollowedError, FollowingSelfError, User } from "src/server/models/user";
-import { settings } from "src/server/settings";
 import {
   responseForAlreadyFollowed,
   responseForFailed,
   responseForFollowingSelf,
   responseForSucceed
-} from "src/server/views/follow";
+} from "src/server/views/responses/follow";
 import { checkRegisterUser } from "src/server/controllers/register-user";
+import { discordCache } from "src/server/discord/cache";
 
 client.on("interactionCreate", async (interaction) => {
   if (!interaction.isContextMenu() || interaction.commandName !== "follow") return;
-  const targetGuild = await client.guilds.fetch(settings.values.targetGuildId);
+  const targetGuild = await discordCache.getTargetGuild();
   const targetGuildMember = await targetGuild.members.fetch(interaction.targetId);
   const targetUser = targetGuildMember.user;
   await followUser({

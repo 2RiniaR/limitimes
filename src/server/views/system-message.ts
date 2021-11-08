@@ -1,11 +1,12 @@
 import { MessageEmbed } from "discord.js";
 
 /*
-info    : 追加の情報など
-invalid : ユーザーによる操作が誤ったものだった場合
-failed  : ユーザーの操作は誤ってないが、処理が想定内の失敗をした場合
-warning : システムの警告
-error   : システムのエラー
+succeed : 処理に成功したとき
+info    : 追加の情報があるとき
+invalid : ユーザーによる操作が誤ったものだったとき
+failed  : ユーザーの操作は誤ってないが、処理が想定内の失敗をしたとき
+warning : 処理は失敗していないが、好ましくない結果となったとき
+error   : 処理が失敗したうえ、想定外の失敗だったとき
  */
 export type SystemMessageType = "succeed" | "info" | "invalid" | "failed" | "warning" | "error";
 
