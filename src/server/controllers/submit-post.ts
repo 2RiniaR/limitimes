@@ -66,6 +66,7 @@ export async function requestSubmitPost({ message }: RequestSubmitPostContext) {
     upstreamURL = upstreamMessage.url;
   } catch (error) {
     await responseForFailedToSendToTimeline(message);
+    console.error(error);
     return;
   }
 
@@ -73,6 +74,7 @@ export async function requestSubmitPost({ message }: RequestSubmitPostContext) {
     await sendPostToFollowersDMChannel(message, upstreamURL);
   } catch (error) {
     await responseForFailedToSendToFollowers(message);
+    console.error(error);
     return;
   }
 
