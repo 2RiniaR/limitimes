@@ -1,12 +1,8 @@
 import { client } from "src/server/discord";
-import { Message, User as DiscordUser } from "discord.js";
+import { DiscordAPIError, Message, User as DiscordUser } from "discord.js";
 import { checkRegisterUser } from "src/server/controllers/register-user";
 import { discordCache } from "src/server/discord/cache";
-import {
-  responseForFailedToSendToFollowers,
-  responseForFailedToSendToTimeline,
-  responseForSucceed
-} from "src/server/views/responses/submit-post";
+import { responseForFailedToSendToTimeline, responseForSucceed } from "src/server/views/responses/submit-post";
 import { User } from "src/server/models/user";
 import { fetchFollowerUsers } from "src/server/controllers/utils";
 import { getPostForFollowerEmbed, getPostForTimelineEmbed } from "src/server/views/post";
@@ -30,7 +26,10 @@ async function sendPostToTimelineChannel(message: Message): Promise<Message> {
     imagesURL: message.getImagesURL(),
     userName: message.author.username,
     userAvatarURL: message.getAvatarURL(),
-    createdAt: message.createdAt
+    userId: message.author.id,
+    createdAt: message.createdAt,
+    favoriteCount: 0,
+    shareCount: 0
   });
   return await timelineChannel.send({ embeds: [embed] });
 }
@@ -50,10 +49,20 @@ async function sendPostToFollowersDMChannel(message: Message, upstreamURL: strin
       imagesURL: message.getImagesURL(),
       userName: message.author.username,
       userAvatarURL: message.getAvatarURL(),
+      userId: message.author.id,
       createdAt: message.createdAt,
-      upstreamURL
+      upstreamURL,
+      favoriteCount: 0,
+      shareCount: 0
     });
-    await dmChannel.send({ embeds: [embed] });
+
+    try {
+      await dmChannel.send({ embeds: [embed] });
+    } catch (error) {
+      if (!(error instanceof DiscordAPIError)) {
+        console.error(error);
+      }
+    }
   }
 }
 
@@ -70,13 +79,6 @@ export async function requestSubmitPost({ message }: RequestSubmitPostContext) {
     return;
   }
 
-  try {
-    await sendPostToFollowersDMChannel(message, upstreamURL);
-  } catch (error) {
-    await responseForFailedToSendToFollowers(message);
-    console.error(error);
-    return;
-  }
-
+  await sendPostToFollowersDMChannel(message, upstreamURL);
   await responseForSucceed(message, { upstreamURL: upstreamURL });
 }

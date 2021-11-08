@@ -11,7 +11,7 @@ declare module "discord.js" {
 
 Message.prototype.getAvatarURL = function (this: Message): string | undefined {
   const avatarURL = this.author.avatarURL();
-  return avatarURL ? avatarURL : undefined;
+  return avatarURL ? avatarURL : this.author.defaultAvatarURL;
 };
 
 Message.prototype.getImagesURL = function (this: Message): string[] {

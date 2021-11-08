@@ -9,14 +9,6 @@ export async function responseForFailedToSendToTimeline(interaction: ReplyTarget
   });
 }
 
-export async function responseForFailedToSendToFollowers(interaction: ReplyTarget) {
-  const message = "一部のフォロワーのDMへ送信できませんでした。";
-  await interaction.reply({
-    ephemeral: true,
-    embeds: [getSystemMessageEmbed({ type: "warning" }).setDescription(message)]
-  });
-}
-
 export async function responseForSucceed(interaction: ReplyTarget, { upstreamURL }: { upstreamURL: string }) {
   const message = `投稿しました！\n${upstreamURL}`;
   await interaction.reply({
