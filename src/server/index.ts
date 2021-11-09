@@ -1,8 +1,9 @@
 import "./helpers";
-import { initialize as initializeDiscord } from "./discord";
-import { settings } from "./settings";
+import "./firebase";
+import { clientManager } from "src/server/discord";
+import { settingsManager } from "./settings";
 import "./controllers";
 
 console.log("LIMITIMES BOT STARTED!");
-settings.load();
-void initializeDiscord();
+settingsManager.load();
+void clientManager.initialize();

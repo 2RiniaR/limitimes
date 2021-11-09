@@ -5,8 +5,7 @@ export type QuoteProps = {
   imagesURL: string[];
   userName: string;
   userAvatarURL?: string;
-  guildName?: string;
-  channelName?: string;
+  channelName: string;
   createdAt: Date;
 };
 
@@ -15,7 +14,6 @@ export function getQuoteEmbed({
   imagesURL,
   userName,
   userAvatarURL,
-  guildName,
   channelName,
   createdAt
 }: QuoteProps): MessageEmbed {
@@ -23,7 +21,7 @@ export function getQuoteEmbed({
     .setColor("BLUE")
     .setDescription(content)
     .setAuthor(userName, userAvatarURL)
-    .setFooter([guildName, channelName].join("    "))
+    .addField("channel", channelName, true)
     .setTimestamp(createdAt);
   imagesURL.forEach((url) => embed.setImage(url));
   return embed;

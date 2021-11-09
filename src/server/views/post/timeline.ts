@@ -4,7 +4,7 @@ import { getPostEmbedBase, PostProps } from "src/server/views/post/index";
 
 type AdditionalData = Pick<PostProps, "userId" | "favoriteCount" | "shareCount">;
 function getAdditionalDataView({ userId, favoriteCount, shareCount }: AdditionalData): string {
-  return [`👤 ${getUserReference(userId)}`, `❤ \`${favoriteCount}\` 🔁 \`${shareCount}\``].join("\n");
+  return `❤ \`${favoriteCount}\` 🔁 \`${shareCount}\` 👤 ${getUserReference(userId)}`;
 }
 
 export type PostForTimelineProps = Omit<PostProps, "upstreamURL">;

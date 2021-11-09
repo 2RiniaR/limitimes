@@ -38,4 +38,4 @@ class SettingsManager {
   }
 }
 
-export const settings = new SettingsManager();
+export const settingsManager = new SettingsManager();
