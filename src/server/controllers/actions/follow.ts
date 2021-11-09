@@ -1,16 +1,16 @@
-import { InteractionReplyOptions, User as DiscordUser } from "discord.js";
+import { GuildMember, InteractionReplyOptions } from "discord.js";
 import { AlreadyFollowedError, FollowingSelfError, User } from "src/server/models/user";
 import { alreadyFollowed, failed, followingSelf, succeed } from "src/server/views/responses/follow";
 import { checkRegisterUser } from "src/server/controllers/actions/check-register-user";
 
 export type FollowContext = {
-  requester: DiscordUser;
-  target: DiscordUser;
+  requester: GuildMember;
+  target: GuildMember;
 };
 
 export async function follow(ctx: FollowContext): Promise<InteractionReplyOptions | null> {
   const response =
-    (await checkRegisterUser({ user: ctx.requester })) ?? (await checkRegisterUser({ user: ctx.target }));
+    (await checkRegisterUser({ member: ctx.requester })) ?? (await checkRegisterUser({ member: ctx.target }));
   if (response) return response;
   if (ctx.requester.id === ctx.target.id) return followingSelf();
 
@@ -24,7 +24,8 @@ export async function follow(ctx: FollowContext): Promise<InteractionReplyOption
     return succeed({ targetName: ctx.target.toString() });
   } catch (error) {
     if (error instanceof FollowingSelfError) return followingSelf();
-    else if (error instanceof AlreadyFollowedError) return alreadyFollowed();
-    else return failed();
+    if (error instanceof AlreadyFollowedError) return alreadyFollowed();
+    console.error(error);
+    return failed();
   }
 }

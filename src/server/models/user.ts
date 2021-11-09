@@ -4,7 +4,6 @@ export interface UsersRepository {
   exists(id: string): Promise<boolean>;
   push(user: User): Promise<void>;
   pull(user: User): Promise<void>;
-  getFollowers(user: User): Promise<User[]>;
 }
 
 export class FollowingSelfError extends Error {}
@@ -13,9 +12,15 @@ export class AlreadyFollowedError extends Error {}
 export class AlreadyExistError extends Error {}
 export class UnfollowTargetNotFoundError extends Error {}
 
-export class User {
+export type UserProps = {
+  followings: User[];
+  followers: User[];
+};
+
+export class User implements UserProps {
   public readonly id: string;
   private _followings?: User[];
+  private _followers?: User[];
 
   constructor(id: string) {
     this.id = id;
@@ -63,11 +68,13 @@ export class User {
     this._followings = this._followings.filter((user) => user.id !== target.id);
   }
 
-  get followings(): User[] | undefined {
+  get followings(): User[] {
+    if (!this._followings) throw Error("require properties are undefined.");
     return this._followings;
   }
 
-  public async getFollowers(): Promise<User[]> {
-    return await repository.getFollowers(this);
+  get followers(): User[] {
+    if (!this._followers) throw Error("require properties are undefined.");
+    return this._followers;
   }
 }

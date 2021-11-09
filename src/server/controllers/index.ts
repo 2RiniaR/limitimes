@@ -10,18 +10,18 @@ import { sendQuote } from "src/server/controllers/actions/send-quote";
 import { showFollowingUsers } from "src/server/controllers/actions/show-following-users";
 import { requestSubmitPost } from "src/server/controllers/actions/submit-post";
 
-onUserMenuSelected("follow", async (interaction, target) => {
-  const response = await follow({ requester: interaction.user, target });
+onUserMenuSelected("follow", async ({ interaction, requester, target }) => {
+  const response = await follow({ requester, target });
   if (response) await interaction.reply(response);
 });
 
-onUserMenuSelected("unfollow", async (interaction, target) => {
-  const response = await unfollow({ requester: interaction.user, target });
+onUserMenuSelected("unfollow", async ({ interaction, requester, target }) => {
+  const response = await unfollow({ requester, target });
   if (response) await interaction.reply(response);
 });
 
-onMessageReceived(async (message) => {
-  const response = await sendQuote({ message: message });
+onMessageReceived(async ({ message }) => {
+  const response = await sendQuote({ message });
   if (response) await message.reply(response);
 });
 
@@ -30,17 +30,13 @@ onSlashCommandReceived(
     commandName: "times",
     subCommandName: "show-following-users"
   },
-  async (interaction) => {
-    const response = await showFollowingUsers({
-      interaction: interaction,
-      requester: interaction.user
-    });
+  async ({ interaction, requester }) => {
+    const response = await showFollowingUsers({ interaction, requester });
     if (response) await interaction.reply(response);
   }
 );
 
-onDirectMessageReceived(async (message) => {
-  await requestSubmitPost({
-    message: message
-  });
+onDirectMessageReceived(async ({ message, author }) => {
+  const response = await requestSubmitPost({ message, requester: author });
+  if (!response) await message.react("✅");
 });

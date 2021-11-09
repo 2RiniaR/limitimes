@@ -37,14 +37,9 @@ export class InMemoryRepository implements UsersRepository {
     const src = this.users[dist.id];
     if (!src) return;
     Object.assign(dist, {
-      _followingUsers: Array.from(src.followingUsersId).map((id) => new User(id))
+      _followingUsers: Array.from(src.followingUsersId).map((id) => new User(id)),
+      _followerUsers: Array.from(src.followerUsersId).map((id) => new User(id))
     });
     return Promise.resolve();
-  }
-
-  getFollowers(user: User): Promise<User[]> {
-    const src = this.users[user.id];
-    if (!src) throw Error();
-    return Promise.resolve(Array.from(src.followerUsersId).map((id) => new User(id)));
   }
 }

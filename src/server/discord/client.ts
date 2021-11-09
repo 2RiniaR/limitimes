@@ -1,16 +1,24 @@
 import { Client, Intents } from "discord.js";
-import { settings } from "src/server/settings";
+import { settingsManager } from "src/server/settings";
 
-export const client = new Client({
-  partials: ["CHANNEL"],
-  intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.DIRECT_MESSAGES]
-});
+export class ClientManager {
+  private readonly _client = new Client({
+    partials: ["CHANNEL"],
+    intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.DIRECT_MESSAGES]
+  });
 
-export async function initialize() {
-  await client.login(settings.values.discordToken);
+  public constructor() {
+    this._client.on("ready", () => {
+      if (!this._client.user) return;
+      console.log(`Logged in as ${this._client.user.tag}!`);
+    });
+  }
+
+  public async initialize() {
+    await this._client.login(settingsManager.values.discordToken);
+  }
+
+  get client(): Client {
+    return this._client;
+  }
 }
-
-client.on("ready", () => {
-  if (!client.user) return;
-  console.log(`Logged in as ${client.user.tag}!`);
-});

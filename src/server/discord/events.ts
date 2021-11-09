@@ -1,30 +1,38 @@
-import { Awaitable, CommandInteraction, ContextMenuInteraction, Message, User } from "discord.js";
-import { client } from "src/server/discord/client";
-import { getUserInTargetGuild } from "src/server/discord/user";
+import { Awaitable, CommandInteraction, ContextMenuInteraction, GuildMember, Message } from "discord.js";
+import { clientManager, targetGuildManager } from "src/server/discord";
 
 export function onUserMenuSelected(
   name: string,
-  listener: (interaction: ContextMenuInteraction, target: User) => Awaitable<void>
+  listener: (ctx: {
+    interaction: ContextMenuInteraction;
+    requester: GuildMember;
+    target: GuildMember;
+  }) => Awaitable<void>
 ) {
-  client.on("interactionCreate", async (interaction) => {
+  clientManager.client.on("interactionCreate", async (interaction) => {
     if (!interaction.isContextMenu() || interaction.commandName !== name) return;
-    const targetUser = await getUserInTargetGuild(interaction.targetId);
-    if (!targetUser) return;
-    await listener(interaction, targetUser);
+    const requester = await targetGuildManager.getMember(interaction.user.id);
+    const target = await targetGuildManager.getMember(interaction.targetId);
+    if (!requester || !target) return;
+    await listener({ interaction, requester, target });
   });
 }
 
-export function onMessageReceived(listener: (message: Message) => Awaitable<void>) {
-  client.on("messageCreate", async (message) => {
+export function onMessageReceived(listener: (ctx: { message: Message; author: GuildMember }) => Awaitable<void>) {
+  clientManager.client.on("messageCreate", async (message) => {
     if (message.author.bot || !message.channel.isText()) return;
-    await listener(message);
+    const author = await targetGuildManager.getMember(message.author.id);
+    if (!author) return;
+    await listener({ message, author });
   });
 }
 
-export function onDirectMessageReceived(listener: (message: Message) => Awaitable<void>) {
-  client.on("messageCreate", async (message) => {
+export function onDirectMessageReceived(listener: (ctx: { message: Message; author: GuildMember }) => Awaitable<void>) {
+  clientManager.client.on("messageCreate", async (message) => {
     if (message.author.bot || message.channel.type !== "DM") return;
-    await listener(message);
+    const author = await targetGuildManager.getMember(message.author.id);
+    if (!author) return;
+    await listener({ message, author });
   });
 }
 
@@ -36,9 +44,9 @@ export function onSlashCommandReceived(
     commandName: string;
     subCommandName: string;
   },
-  listener: (interaction: CommandInteraction) => Awaitable<void>
+  listener: (ctx: { interaction: CommandInteraction; requester: GuildMember }) => Awaitable<void>
 ) {
-  client.on("interactionCreate", async (interaction) => {
+  clientManager.client.on("interactionCreate", async (interaction) => {
     if (
       !interaction.isCommand() ||
       interaction.commandName !== commandName ||
@@ -47,6 +55,8 @@ export function onSlashCommandReceived(
       !interaction.channel.isText()
     )
       return;
-    await listener(interaction);
+    const requester = await targetGuildManager.getMember(interaction.user.id);
+    if (!requester) return;
+    await listener({ interaction, requester });
   });
 }

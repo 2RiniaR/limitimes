@@ -1,27 +1,21 @@
-import { InteractionReplyOptions, User as DiscordUser } from "discord.js";
+import { InteractionReplyOptions, GuildMember } from "discord.js";
 import { User } from "src/server/models/user";
 import { userIsBot, userIsNotJoinedToTargetGuild, failed } from "src/server/views/responses/register-user";
-import { discordCache } from "src/server/discord/cache";
+import { targetGuildManager } from "src/server/discord";
 
 export type CheckRegisterUserContext = {
-  user: DiscordUser;
+  member: GuildMember;
 };
 
 export class BotCanNotRegisteredError extends Error {}
 export class UserIsNotJoinedToTargetGuildError extends Error {}
 
-async function isJoinedToTargetGuild(user: DiscordUser): Promise<boolean> {
-  const targetGuild = await discordCache.getTargetGuild();
-  const member = await targetGuild.members.fetch(user);
-  return !!member;
-}
-
-export async function registerUserIfNotExist({ user }: CheckRegisterUserContext) {
-  const requestUser = new User(user.id);
-  if (await requestUser.exists()) return;
-  if (user.bot) throw new BotCanNotRegisteredError();
-  if (!(await isJoinedToTargetGuild(user))) throw new UserIsNotJoinedToTargetGuildError();
-  await requestUser.create();
+export async function registerUserIfNotExist({ member }: CheckRegisterUserContext) {
+  const requester = new User(member.id);
+  if (await requester.exists()) return;
+  if (member.user.bot) throw new BotCanNotRegisteredError();
+  if (!(await targetGuildManager.getMember(member.id))) throw new UserIsNotJoinedToTargetGuildError();
+  await requester.create();
 }
 
 export async function checkRegisterUser(ctx: CheckRegisterUserContext): Promise<InteractionReplyOptions | null> {
@@ -29,9 +23,10 @@ export async function checkRegisterUser(ctx: CheckRegisterUserContext): Promise<
     await registerUserIfNotExist(ctx);
     return null;
   } catch (error) {
-    if (error instanceof BotCanNotRegisteredError) return userIsBot({ userName: ctx.user.toString() });
+    if (error instanceof BotCanNotRegisteredError) return userIsBot({ userName: ctx.member.toString() });
     if (error instanceof UserIsNotJoinedToTargetGuildError)
-      return userIsNotJoinedToTargetGuild({ userName: ctx.user.toString() });
-    return failed({ userName: ctx.user.toString() });
+      return userIsNotJoinedToTargetGuild({ userName: ctx.member.toString() });
+    console.error(error);
+    return failed({ userName: ctx.member.toString() });
   }
 }

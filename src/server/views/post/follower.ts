@@ -3,10 +3,7 @@ import { getPostEmbedBase, PostProps } from "src/server/views/post/index";
 
 type AdditionalData = Pick<PostProps, "userId" | "favoriteCount" | "shareCount" | "upstreamURL">;
 function getAdditionalDataView({ userId, favoriteCount, shareCount, upstreamURL }: AdditionalData): string {
-  return [
-    `👤 ${getUserReference(userId)}`,
-    `❤ \`${favoriteCount}\` 🔁 \`${shareCount}\` 🔎 [here](${upstreamURL})`
-  ].join("\n");
+  return `❤ \`${favoriteCount}\` 🔁 \`${shareCount}\` 🔎 [here](${upstreamURL}) 👤 ${getUserReference(userId)}`;
 }
 
 export type PostForFollowerProps = PostProps;
