@@ -1,26 +1,26 @@
 import { getSystemMessageEmbed } from "src/server/views/system-message";
-import { ReplyTarget } from "src/server/views";
+import { InteractionReplyOptions } from "discord.js";
 
-export async function responseForTargetIsNotFollowed(interaction: ReplyTarget) {
+export function targetIsNotFollowed(): InteractionReplyOptions {
   const message = "あなたはその人をフォローしていません。";
-  await interaction.reply({
+  return {
     ephemeral: true,
     embeds: [getSystemMessageEmbed({ type: "invalid" }).setDescription(message)]
-  });
+  };
 }
 
-export async function responseForFailed(interaction: ReplyTarget) {
+export function failed(): InteractionReplyOptions {
   const message = "フォローの解除に失敗しました。";
-  await interaction.reply({
+  return {
     ephemeral: true,
     embeds: [getSystemMessageEmbed({ type: "error" }).setDescription(message)]
-  });
+  };
 }
 
-export async function responseForSucceed(interaction: ReplyTarget, { targetUserName }: { targetUserName: string }) {
-  const message = `${targetUserName}のフォローを解除しました。`;
-  await interaction.reply({
+export function succeed({ targetName }: { targetName: string }): InteractionReplyOptions {
+  const message = `${targetName}のフォローを解除しました。`;
+  return {
     ephemeral: true,
     embeds: [getSystemMessageEmbed({ type: "succeed" }).setDescription(message)]
-  });
+  };
 }

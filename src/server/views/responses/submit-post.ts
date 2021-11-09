@@ -1,18 +1,16 @@
 import { getSystemMessageEmbed } from "src/server/views/system-message";
-import { ReplyTarget } from "src/server/views";
+import { ReplyMessageOptions } from "discord.js";
 
-export async function responseForFailedToSendToTimeline(interaction: ReplyTarget) {
+export function failedToSendToTimeline(): ReplyMessageOptions {
   const message = "投稿に失敗しました。";
-  await interaction.reply({
-    ephemeral: true,
+  return {
     embeds: [getSystemMessageEmbed({ type: "error" }).setDescription(message)]
-  });
+  };
 }
 
-export async function responseForSucceed(interaction: ReplyTarget, { upstreamURL }: { upstreamURL: string }) {
+export function succeed({ upstreamURL }: { upstreamURL: string }): ReplyMessageOptions {
   const message = `投稿しました！\n${upstreamURL}`;
-  await interaction.reply({
-    ephemeral: true,
+  return {
     embeds: [getSystemMessageEmbed({ type: "succeed" }).setDescription(message)]
-  });
+  };
 }

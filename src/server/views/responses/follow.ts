@@ -1,35 +1,35 @@
 import { getSystemMessageEmbed } from "src/server/views/system-message";
-import { ReplyTarget } from "src/server/views";
+import { InteractionReplyOptions } from "discord.js";
 
-export async function responseForFollowingSelf(interaction: ReplyTarget) {
+export function followingSelf(): InteractionReplyOptions {
   const message = "自分をフォローする気ですか？鏡ならばお風呂場にありますよ。";
-  await interaction.reply({
+  return {
     ephemeral: true,
     embeds: [getSystemMessageEmbed({ type: "invalid" }).setDescription(message)]
-  });
+  };
 }
 
-export async function responseForAlreadyFollowed(interaction: ReplyTarget) {
+export function alreadyFollowed(): InteractionReplyOptions {
   const message =
     "あなたがその人を愛してやまない気持ちはわかりますが、フォローしている相手をフォローすることはできません。";
-  await interaction.reply({
+  return {
     ephemeral: true,
     embeds: [getSystemMessageEmbed({ type: "invalid" }).setDescription(message)]
-  });
+  };
 }
 
-export async function responseForFailed(interaction: ReplyTarget) {
+export function failed(): InteractionReplyOptions {
   const message = "フォローに失敗しました。";
-  await interaction.reply({
+  return {
     ephemeral: true,
     embeds: [getSystemMessageEmbed({ type: "error" }).setDescription(message)]
-  });
+  };
 }
 
-export async function responseForSucceed(interaction: ReplyTarget, { targetUserName }: { targetUserName: string }) {
-  const message = `${targetUserName}をフォローしました！`;
-  await interaction.reply({
+export function succeed({ targetName }: { targetName: string }): InteractionReplyOptions {
+  const message = `${targetName}をフォローしました！`;
+  return {
     ephemeral: true,
     embeds: [getSystemMessageEmbed({ type: "succeed" }).setDescription(message)]
-  });
+  };
 }

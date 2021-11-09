@@ -1,19 +1,11 @@
-import { client } from "src/server/discord";
-import { DiscordAPIError, Message, User as DiscordUser } from "discord.js";
-import { checkRegisterUser } from "src/server/controllers/register-user";
+import { DiscordAPIError, Message, ReplyMessageOptions, User as DiscordUser } from "discord.js";
 import { discordCache } from "src/server/discord/cache";
-import { responseForFailedToSendToTimeline, responseForSucceed } from "src/server/views/responses/submit-post";
 import { User } from "src/server/models/user";
-import { fetchFollowerUsers } from "src/server/controllers/utils";
+import { fetchFollowers } from "src/server/controllers/utils";
 import { getPostForFollowerEmbed, getPostForTimelineEmbed } from "src/server/views/post";
 import { getDMChannel } from "src/server/discord/dm";
-
-client.on("messageCreate", async (message) => {
-  if (message.author.bot || message.channel.type !== "DM") return;
-  await requestSubmitPost({
-    message: message
-  });
-});
+import { checkRegisterUser } from "src/server/controllers/actions/check-register-user";
+import { failedToSendToTimeline, succeed } from "src/server/views/responses/submit-post";
 
 type RequestSubmitPostContext = {
   message: Message;
@@ -37,7 +29,7 @@ async function sendPostToTimelineChannel(message: Message): Promise<Message> {
 async function getFollowerUsers(message: Message): Promise<DiscordUser[]> {
   const postUser = new User(message.author.id);
   await postUser.fetch();
-  return await fetchFollowerUsers(postUser);
+  return await fetchFollowers(postUser);
 }
 
 async function sendPostToFollowersDMChannel(message: Message, upstreamURL: string) {
@@ -66,19 +58,19 @@ async function sendPostToFollowersDMChannel(message: Message, upstreamURL: strin
   }
 }
 
-export async function requestSubmitPost({ message }: RequestSubmitPostContext) {
-  if (!(await checkRegisterUser(message, message.author))) return;
+export async function requestSubmitPost(ctx: RequestSubmitPostContext): Promise<ReplyMessageOptions | null> {
+  const response = await checkRegisterUser({ user: ctx.message.author });
+  if (response) return response;
 
   let upstreamURL: string;
   try {
-    const upstreamMessage = await sendPostToTimelineChannel(message);
+    const upstreamMessage = await sendPostToTimelineChannel(ctx.message);
     upstreamURL = upstreamMessage.url;
   } catch (error) {
-    await responseForFailedToSendToTimeline(message);
     console.error(error);
-    return;
+    return failedToSendToTimeline();
   }
 
-  await sendPostToFollowersDMChannel(message, upstreamURL);
-  await responseForSucceed(message, { upstreamURL: upstreamURL });
+  await sendPostToFollowersDMChannel(ctx.message, upstreamURL);
+  return succeed({ upstreamURL });
 }

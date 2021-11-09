@@ -1,25 +1,22 @@
 import { getSystemMessageEmbed } from "src/server/views/system-message";
-import { ReplyTarget } from "src/server/views";
+import { InteractionReplyOptions } from "discord.js";
 
-export async function responseForFailed(interaction: ReplyTarget) {
+export function failed(): InteractionReplyOptions {
   const message = "フォロー中のユーザー一覧を取得することに失敗しました。";
-  await interaction.reply({
+  return {
     ephemeral: true,
     embeds: [getSystemMessageEmbed({ type: "error" }).setDescription(message)]
-  });
+  };
 }
 
-export async function responseForSucceed(
-  interaction: ReplyTarget,
-  { followingUserNames }: { followingUserNames: string[] }
-) {
-  await interaction.reply({
+export function succeed({ followingsName }: { followingsName: string[] }): InteractionReplyOptions {
+  return {
     ephemeral: true,
     embeds: [
       getSystemMessageEmbed({ type: "succeed" })
         .setTitle("フォロー中")
-        .setDescription(followingUserNames.join("\n"))
-        .setFooter(`合計 ${followingUserNames.length}人`)
+        .setDescription(followingsName.join("\n"))
+        .setFooter(`合計 ${followingsName.length}人`)
     ]
-  });
+  };
 }

@@ -1,22 +1,12 @@
-import { Message } from "discord.js";
+import { Message, ReplyMessageOptions } from "discord.js";
 import { client } from "src/server/discord";
-import {
-  responseForFailed,
-  responseForMessageNotFound,
-  responseForSucceed
-} from "src/server/views/responses/send-quote";
+import { succeed } from "src/server/views/responses/send-quote";
 import { MessageReference, findMessageReferencesFromText } from "src/server/helpers/find-message-refs";
 import { QuoteProps } from "src/server/views/quote";
 
-client.on("messageCreate", async (message) => {
-  if (message.author.bot || !message.channel.isText()) return;
-  await sendQuote({ srcMessage: message });
-});
-
 export type SendQuoteContext = {
-  srcMessage: Message;
+  message: Message;
 };
-
 class ChannelNotFoundError extends Error {}
 class MessageNotFoundError extends Error {}
 
@@ -36,8 +26,8 @@ async function fetchMessageFromReference({ channelId, messageId }: MessageRefere
 }
 
 // 送信されたメッセージから、メッセージリンク部分をすべて探し出し、それらの中身をEmbedとして返信する
-export async function sendQuote({ srcMessage }: SendQuoteContext) {
-  const refs = findMessageReferencesFromText(srcMessage.content);
+export async function sendQuote(ctx: SendQuoteContext): Promise<ReplyMessageOptions | null> {
+  const refs = findMessageReferencesFromText(ctx.message.content);
   const quotes: QuoteProps[] = [];
 
   for (const ref of refs) {
@@ -53,15 +43,10 @@ export async function sendQuote({ srcMessage }: SendQuoteContext) {
         createdAt: refMessage.createdAt
       });
     } catch (error) {
-      if (error instanceof ChannelNotFoundError || error instanceof MessageNotFoundError) {
-        await responseForMessageNotFound(srcMessage);
-      } else {
-        await responseForFailed(srcMessage);
-        return;
-      }
+      if (!(error instanceof ChannelNotFoundError || error instanceof MessageNotFoundError)) return null;
     }
   }
 
-  if (quotes.length === 0) return;
-  await responseForSucceed(srcMessage, { quotes });
+  if (quotes.length === 0) return null;
+  return succeed({ quotes });
 }
