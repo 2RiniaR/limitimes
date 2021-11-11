@@ -6,6 +6,7 @@ import { checkRegisterUser } from "src/server/controllers/actions/check-register
 import { failedToSendToTimeline } from "src/server/views/responses/submit-post";
 import { targetGuildManager } from "src/server/discord";
 import { PostForTimelineProps } from "src/server/views/post/timeline";
+import { userService } from "src/server/models";
 
 type RequestSubmitPostContext = {
   message: Message;
@@ -13,7 +14,8 @@ type RequestSubmitPostContext = {
 };
 
 async function fetchFollowers(user: User): Promise<GuildMember[]> {
-  const followersId = user.followers.map((user) => user.id);
+  const followers = await user.getFollowers();
+  const followersId = followers.map((user) => user.id);
   return await targetGuildManager.getMembers(followersId);
 }
 
@@ -36,14 +38,10 @@ async function sendPostToTimelineChannel(message: Message): Promise<Message> {
   return await timelineChannel.send({ embeds: [embed] });
 }
 
-async function getFollowerUsers(message: Message): Promise<GuildMember[]> {
-  const requester = new User(message.author.id);
-  await requester.fetch();
-  return await fetchFollowers(requester);
-}
-
 async function sendPostToFollowersDMChannel(message: Message, upstreamURL: string) {
-  const members = await getFollowerUsers(message);
+  const requester = userService.get(message.author.id);
+  const members = await fetchFollowers(requester);
+
   for (const member of members) {
     const dmChannel = await getDMChannel(member.user);
     const embed = getPostForFollowerEmbed({
