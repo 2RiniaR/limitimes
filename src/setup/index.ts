@@ -6,6 +6,7 @@ dotenv.config();
 const token = getEnvironmentVariable("DISCORD_TOKEN");
 const clientId = getEnvironmentVariable("CLIENT_ID");
 const guildId = getEnvironmentVariable("TARGET_GUILD_ID");
+const isGlobal = getEnvironmentVariable("COMMAND_SITE") === "GLOBAL";
 const rest = new REST({ version: "9" }).setToken(token);
 
 function getEnvironmentVariable(name: string): string {
@@ -41,7 +42,13 @@ function getCommands(): object[] {
 void (async () => {
   try {
     console.log("Started refreshing application (/) commands.");
-    await rest.put(Routes.applicationGuildCommands(clientId, guildId), { body: getCommands() });
+
+    if (isGlobal) {
+      await rest.put(Routes.applicationCommands(clientId), { body: getCommands() });
+    } else {
+      await rest.put(Routes.applicationGuildCommands(clientId, guildId), { body: getCommands() });
+    }
+
     console.log("Successfully reloaded application (/) commands.");
   } catch (error) {
     console.error(JSON.stringify(error));
