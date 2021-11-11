@@ -45,7 +45,9 @@ void (async () => {
 
     if (isGlobal) {
       await rest.put(Routes.applicationCommands(clientId), { body: getCommands() });
+      await rest.put(Routes.applicationGuildCommands(clientId, guildId), { body: [] });
     } else {
+      await rest.put(Routes.applicationCommands(clientId), { body: [] });
       await rest.put(Routes.applicationGuildCommands(clientId, guildId), { body: getCommands() });
     }
 
