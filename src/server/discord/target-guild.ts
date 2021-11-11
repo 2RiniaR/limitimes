@@ -31,7 +31,12 @@ export class TargetGuildManager {
 
   public async getMember(id: string): Promise<GuildMember | null> {
     const guild = await this.getTargetGuild();
-    return await guild.members.fetch(id);
+
+    try {
+      return await guild.members.fetch(id);
+    } catch (error) {
+      return null;
+    }
   }
 
   public async getMembers(id: string[]): Promise<GuildMember[]> {

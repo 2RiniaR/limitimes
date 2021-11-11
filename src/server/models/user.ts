@@ -1,80 +1,78 @@
-import { repository } from "src/server/repositories";
+import { UserService } from "src/server/models/user-service";
+import { db } from "src/server/firebase";
+import { firestore } from "firebase-admin";
+import FieldValue = firestore.FieldValue;
+import Transaction = firestore.Transaction;
 
-export interface UsersRepository {
-  exists(id: string): Promise<boolean>;
-  push(user: User): Promise<void>;
-  pull(user: User): Promise<void>;
-}
+export type UserDocument = {
+  readonly followings: string[];
+};
 
 export class FollowingSelfError extends Error {}
 export class NotFoundError extends Error {}
 export class AlreadyFollowedError extends Error {}
-export class AlreadyExistError extends Error {}
 export class UnfollowTargetNotFoundError extends Error {}
 
-export type UserProps = {
-  followings: User[];
-  followers: User[];
-};
-
-export class User implements UserProps {
+export class User {
+  public readonly service: UserService;
   public readonly id: string;
-  private _followings?: User[];
-  private _followers?: User[];
+  public readonly ref;
 
-  constructor(id: string) {
-    this.id = id;
+  constructor(props: Pick<User, "id" | "service">) {
+    this.service = props.service;
+    this.id = props.id;
+    this.ref = this.service.users.doc(this.id);
   }
 
-  public exists(): Promise<boolean> {
-    return repository.exists(this.id);
+  public async exists(): Promise<boolean> {
+    const doc = await this.ref.get();
+    return doc.exists;
   }
 
-  public async update() {
-    if (!(await this.exists())) throw new NotFoundError();
-    await repository.push(this);
+  protected async getDocument(): Promise<UserDocument> {
+    const doc = await this.ref.get();
+    const data = doc.data();
+    if (!doc.exists || !data) throw new NotFoundError();
+    return data as UserDocument;
   }
 
-  public async create() {
-    if (await this.exists()) throw new AlreadyExistError();
-    this._followings = [];
-    await repository.push(this);
+  protected async transaction<T>(process: (transaction: Transaction, user: UserDocument) => T): Promise<T> {
+    return db.runTransaction(async (transaction) => {
+      const doc = await transaction.get(this.ref);
+      const data = doc.data();
+      if (!doc.exists || !data) throw new NotFoundError();
+      return process(transaction, data as UserDocument);
+    });
   }
 
-  public async fetch() {
-    if (!(await this.exists())) throw new NotFoundError();
-    await repository.pull(this);
-  }
-
-  private isSame(target: User): boolean {
+  public isSame(target: User): boolean {
     return this.id === target.id;
   }
 
-  private isFollowing(target: User): boolean {
-    if (!this._followings) throw Error("require properties are undefined.");
-    return !!this._followings.find((user) => user.id === target.id);
-  }
-
-  public follow(target: User) {
-    if (!this._followings) throw Error("require properties are undefined.");
+  public async follow(target: User) {
     if (this.isSame(target)) throw new FollowingSelfError();
-    if (this.isFollowing(target)) throw new AlreadyFollowedError();
-    this._followings.push(target);
+    await this.transaction((transaction, user) => {
+      if (user.followings.includes(target.id)) throw new AlreadyFollowedError();
+      transaction.update(this.ref, { followings: FieldValue.arrayUnion(target.id) });
+    });
   }
 
-  public unfollow(target: User) {
-    if (!this._followings) throw Error("require properties are undefined.");
-    if (!this.isFollowing(target)) throw new UnfollowTargetNotFoundError();
-    this._followings = this._followings.filter((user) => user.id !== target.id);
+  public async unfollow(target: User) {
+    await this.transaction((transaction, user) => {
+      if (!user.followings.includes(target.id)) throw new UnfollowTargetNotFoundError();
+      transaction.update(this.ref, { followings: FieldValue.arrayRemove(target.id) });
+    });
   }
 
-  get followings(): User[] {
-    if (!this._followings) throw Error("require properties are undefined.");
-    return this._followings;
+  public async getFollowings(): Promise<User[]> {
+    const user = await this.getDocument();
+    return user.followings.map((userId) => this.service.get(userId));
   }
 
-  get followers(): User[] {
-    if (!this._followers) throw Error("require properties are undefined.");
-    return this._followers;
+  public async getFollowers(): Promise<User[]> {
+    const snapshot = await this.service.users.where("followings", "array-contains", this.id).get();
+    const followers: User[] = [];
+    snapshot.forEach((doc) => followers.push(this.service.get(doc.id)));
+    return followers;
   }
 }

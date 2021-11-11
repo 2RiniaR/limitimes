@@ -3,6 +3,7 @@ import { User } from "src/server/models/user";
 import { checkRegisterUser } from "src/server/controllers/actions/check-register-user";
 import { failed, succeed } from "src/server/views/responses/show-following-users";
 import { targetGuildManager } from "src/server/discord";
+import { userService } from "src/server/models";
 
 export type ShowFollowingUsersContext = {
   interaction: CommandInteraction;
@@ -10,7 +11,8 @@ export type ShowFollowingUsersContext = {
 };
 
 async function fetchFollowings(user: User): Promise<GuildMember[]> {
-  const followingsId = user.followings.map((user) => user.id);
+  const followings = await user.getFollowings();
+  const followingsId = followings.map((user) => user.id);
   return await targetGuildManager.getMembers(followingsId);
 }
 
@@ -18,9 +20,9 @@ export async function showFollowingUsers(ctx: ShowFollowingUsersContext): Promis
   const response = await checkRegisterUser({ member: ctx.requester });
   if (response) return response;
 
+  const requestUser = userService.get(ctx.requester.id);
+
   try {
-    const requestUser = new User(ctx.requester.id);
-    await requestUser.fetch();
     const followings = await fetchFollowings(requestUser);
     return succeed({ followingsName: followings.map((user) => user.toString()) });
   } catch (error) {

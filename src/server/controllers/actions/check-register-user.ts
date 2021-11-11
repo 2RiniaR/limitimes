@@ -1,7 +1,7 @@
 import { InteractionReplyOptions, GuildMember } from "discord.js";
-import { User } from "src/server/models/user";
 import { userIsBot, userIsNotJoinedToTargetGuild, failed } from "src/server/views/responses/register-user";
 import { targetGuildManager } from "src/server/discord";
+import { userService } from "src/server/models";
 
 export type CheckRegisterUserContext = {
   member: GuildMember;
@@ -11,11 +11,9 @@ export class BotCanNotRegisteredError extends Error {}
 export class UserIsNotJoinedToTargetGuildError extends Error {}
 
 export async function registerUserIfNotExist({ member }: CheckRegisterUserContext) {
-  const requester = new User(member.id);
-  if (await requester.exists()) return;
   if (member.user.bot) throw new BotCanNotRegisteredError();
   if (!(await targetGuildManager.getMember(member.id))) throw new UserIsNotJoinedToTargetGuildError();
-  await requester.create();
+  await userService.registerIfNotExist({ id: member.id });
 }
 
 export async function checkRegisterUser(ctx: CheckRegisterUserContext): Promise<InteractionReplyOptions | null> {
