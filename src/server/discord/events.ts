@@ -18,15 +18,6 @@ export function onUserMenuSelected(
   });
 }
 
-export function onMessageReceived(listener: (ctx: { message: Message; author: GuildMember }) => Awaitable<void>) {
-  clientManager.client.on("messageCreate", async (message) => {
-    if (message.author.bot || !message.channel.isText()) return;
-    const author = await targetGuildManager.getMember(message.author.id);
-    if (!author) return;
-    await listener({ message, author });
-  });
-}
-
 export function onDirectMessageReceived(listener: (ctx: { message: Message; author: GuildMember }) => Awaitable<void>) {
   clientManager.client.on("messageCreate", async (message) => {
     if (message.author.bot || message.channel.type !== "DM") return;

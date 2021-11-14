@@ -1,12 +1,6 @@
 import { follow } from "src/server/controllers/actions/follow";
 import { unfollow } from "src/server/controllers/actions/unfollow";
-import {
-  onDirectMessageReceived,
-  onMessageReceived,
-  onSlashCommandReceived,
-  onUserMenuSelected
-} from "src/server/discord/events";
-import { sendQuote } from "src/server/controllers/actions/send-quote";
+import { onDirectMessageReceived, onSlashCommandReceived, onUserMenuSelected } from "src/server/discord/events";
 import { showFollowingUsers } from "src/server/controllers/actions/show-following-users";
 import { requestSubmitPost } from "src/server/controllers/actions/submit-post";
 
@@ -18,11 +12,6 @@ onUserMenuSelected("follow", async ({ interaction, requester, target }) => {
 onUserMenuSelected("unfollow", async ({ interaction, requester, target }) => {
   const response = await unfollow({ requester, target });
   if (response) await interaction.reply(response);
-});
-
-onMessageReceived(async ({ message }) => {
-  const response = await sendQuote({ message });
-  if (response) await message.reply(response);
 });
 
 onSlashCommandReceived(
