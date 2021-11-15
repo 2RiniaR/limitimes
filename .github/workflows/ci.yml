@@ -75,7 +75,7 @@ jobs:
   deploy:
     needs: [lint, build]
     runs-on: ubuntu-latest
-#     if: ${{ github.event_name == 'push' }}
+    if: ${{ github.event_name == 'push' }}
     steps:
       - uses: actions/checkout@v2
       - uses: actions/download-artifact@v2
