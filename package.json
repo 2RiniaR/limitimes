@@ -6,7 +6,7 @@
     "build": "webpack",
     "start": "node ./dist/server.js",
     "dev": "pnpm build && pnpm start",
-    "setup": "pnpm build && node ./dist/setup.js",
+    "setup": "node ./dist/setup.js",
     "eslint": "eslint --ignore-path .gitignore \"src/**/*.{js,ts}\"",
     "eslint:fix": "eslint --ignore-path .gitignore \"src/**/*.{js,ts}\" --fix",
     "format": "prettier --write \"./**/*.ts\""
