@@ -1,4 +1,5 @@
 # Limitimes
+[![CI](https://github.com/watano1168/limitimes/actions/workflows/ci.yml/badge.svg)](https://github.com/watano1168/limitimes/actions/workflows/ci.yml)
 
 discordサーバー内で、独り言を呟けるようにするプロジェクトです。
 

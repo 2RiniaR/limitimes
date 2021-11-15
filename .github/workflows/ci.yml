@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   cache-pnpm:
@@ -73,7 +73,7 @@ jobs:
           path: dist
 
   deploy:
-    needs: [build]
+    needs: [lint, build]
     runs-on: ubuntu-latest
 #     if: ${{ github.event_name == 'push' }}
     steps:
@@ -86,7 +86,7 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           port: ${{ secrets.SSH_PORT }}
           passphrase: ${{ secrets.SSH_PASSPHRASE }}
-          source: "dist,package.json,pnpm-lock.yaml"
+          source: "dist/*,package.json,pnpm-lock.yaml"
           target: ${{ secrets.SSH_PATH }}
       - name: Restart the service
         uses: appleboy/ssh-action@master
