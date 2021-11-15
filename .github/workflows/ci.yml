@@ -72,10 +72,10 @@ jobs:
           name: artifact
           path: dist
 
-  update:
+  deploy:
     needs: [build]
     runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'push' }}
+#     if: ${{ github.event_name == 'push' }}
     steps:
       - uses: actions/checkout@v2
       - name: Deploy with SCP
