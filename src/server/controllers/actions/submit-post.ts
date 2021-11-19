@@ -13,6 +13,16 @@ type RequestSubmitPostContext = {
   requester: GuildMember;
 };
 
+type RequestSubmitPostResponse =
+  | {
+      postResult: "failed";
+      replyOptions: ReplyMessageOptions;
+    }
+  | {
+      postResult: "succeed";
+      secret: boolean;
+    };
+
 const secretPostMarkRegex = /^!/;
 
 async function fetchFollowers(user: User): Promise<GuildMember[]> {
