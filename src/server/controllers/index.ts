@@ -27,5 +27,5 @@ onSlashCommandReceived(
 
 onDirectMessageReceived(async ({ message, author }) => {
   const response = await requestSubmitPost({ message, requester: author });
-  if (!response) await message.react("✅");
+  if (response.postResult === "succeed") await message.react(response.secret ? "🤫" : "✅");
 });
