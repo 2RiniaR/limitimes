@@ -79,21 +79,22 @@ async function sendPostToFollowersDMChannel(message: Message, upstreamURL?: stri
   }
 }
 
-export async function requestSubmitPost(ctx: RequestSubmitPostContext): Promise<ReplyMessageOptions | null> {
+export async function requestSubmitPost(ctx: RequestSubmitPostContext): Promise<RequestSubmitPostResponse> {
   const response = await checkRegisterUser({ member: ctx.requester });
-  if (response) return response;
+  if (response) return { postResult: "failed", replyOptions: response };
 
+  const secret = isSecret(ctx.message.content);
   let upstreamURL: string | undefined;
-  if (!isSecret(ctx.message.content)) {
+  if (!secret) {
     try {
       const upstreamMessage = await sendPostToTimelineChannel(ctx.message);
       upstreamURL = upstreamMessage.url;
     } catch (error) {
       console.error(error);
-      return failedToSendToTimeline();
+      return { postResult: "failed", replyOptions: failedToSendToTimeline() };
     }
   }
 
   await sendPostToFollowersDMChannel(ctx.message, upstreamURL);
-  return null;
+  return { postResult: "succeed", secret };
 }
