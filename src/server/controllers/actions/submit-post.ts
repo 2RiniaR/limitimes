@@ -13,15 +13,25 @@ type RequestSubmitPostContext = {
   requester: GuildMember;
 };
 
+const secretPostMarkRegex = /^!/;
+
 async function fetchFollowers(user: User): Promise<GuildMember[]> {
   const followers = await user.getFollowers();
   const followersId = followers.map((user) => user.id);
   return await targetGuildManager.getMembers(followersId);
 }
 
+function isSecret(content: string): boolean {
+  return secretPostMarkRegex.test(content);
+}
+
+function removeSecretMark(content: string): string {
+  return content.replace(secretPostMarkRegex, "");
+}
+
 function getPostProps(message: Message): PostForTimelineProps {
   return {
-    content: message.content,
+    content: removeSecretMark(message.content),
     imagesURL: message.getImagesURL(),
     userName: message.author.username,
     userAvatarURL: message.author.displayAvatarURL(),
@@ -38,7 +48,7 @@ async function sendPostToTimelineChannel(message: Message): Promise<Message> {
   return await timelineChannel.send({ embeds: [embed] });
 }
 
-async function sendPostToFollowersDMChannel(message: Message, upstreamURL: string) {
+async function sendPostToFollowersDMChannel(message: Message, upstreamURL?: string) {
   const requester = userService.get(message.author.id);
   const members = await fetchFollowers(requester);
 
@@ -63,13 +73,15 @@ export async function requestSubmitPost(ctx: RequestSubmitPostContext): Promise<
   const response = await checkRegisterUser({ member: ctx.requester });
   if (response) return response;
 
-  let upstreamURL: string;
-  try {
-    const upstreamMessage = await sendPostToTimelineChannel(ctx.message);
-    upstreamURL = upstreamMessage.url;
-  } catch (error) {
-    console.error(error);
-    return failedToSendToTimeline();
+  let upstreamURL: string | undefined;
+  if (!isSecret(ctx.message.content)) {
+    try {
+      const upstreamMessage = await sendPostToTimelineChannel(ctx.message);
+      upstreamURL = upstreamMessage.url;
+    } catch (error) {
+      console.error(error);
+      return failedToSendToTimeline();
+    }
   }
 
   await sendPostToFollowersDMChannel(ctx.message, upstreamURL);
