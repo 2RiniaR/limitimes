@@ -7,7 +7,7 @@ export type PostProps = {
   userAvatarURL?: string;
   userId: string;
   createdAt: Date;
-  upstreamURL: string;
+  upstreamURL?: string;
   favoriteCount: number;
   shareCount: number;
 };
